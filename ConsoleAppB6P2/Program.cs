@@ -19,7 +19,10 @@ namespace ConsoleAppB6P2
     {
         public void Draw(int positionX, int positionY, char symbol = '@')
         {
-            if (positionX < 0 && positionX > 100 || positionY < 0 && positionY > 25)
+            int maxX = 100;
+            int maxY = 25;
+
+            if (positionX < 0 && positionX > maxX || positionY < 0 && positionY > maxY)
                 return;
 
             Console.SetCursorPosition(positionX, positionY);
