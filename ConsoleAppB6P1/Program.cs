@@ -51,5 +51,4 @@ namespace ConsoleAppB6P1
                 $"\nИнтеллект:\t{_intellect}\nМудрость:\t{_wishdom}\nХаризма:\t{_charisma}");
         }
     }
-
 }
