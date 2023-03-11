@@ -9,7 +9,7 @@ namespace ConsoleAppB6P3
         {
             Work work = new Work();
 
-            work.StartWork();
+            work.Start();
 
             Console.ReadKey();
         }
@@ -21,7 +21,7 @@ namespace ConsoleAppB6P3
         private Printer _printer = new Printer();
         private Database _database;
 
-        public void StartWork()
+        public void Start()
         {
             const string LoadDatabaseCommand = "1";
             const string NewDatabaseCommand = "2";
@@ -71,7 +71,7 @@ namespace ConsoleAppB6P3
                         break;
 
                     case NewPlayerCommand:
-                        TryCraetePlayer();
+                        TryCreatePlayer();
                         break;
 
                     case RemovePlayerCommand:
@@ -117,7 +117,7 @@ namespace ConsoleAppB6P3
                 _database.PrintPayers();
         }
 
-        private void TryCraetePlayer()
+        private void TryCreatePlayer()
         {
             if (IsDatabase())
                 _database.CreatePlayer();
@@ -144,7 +144,7 @@ namespace ConsoleAppB6P3
 
     public class Controller
     {
-        private string _path = "Databaze.json";
+        private string _path = "Database.json";
         private Printer _printer = new Printer();
 
         public void SaveDatabase(List<Player> players)
@@ -183,12 +183,6 @@ namespace ConsoleAppB6P3
 
     public class Player
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public string Rank { get; private set; }
-        public int Level { get; private set; }
-        public bool IsBanned { get; private set; }
-
         public Player(int id, string name, string rank, int level, bool isBanned = false)
         {
             Id = id;
@@ -197,6 +191,12 @@ namespace ConsoleAppB6P3
             Level = level;
             IsBanned = isBanned;
         }
+
+        public int Id { get; private set; }
+        public string Name { get; private set; }
+        public string Rank { get; private set; }
+        public int Level { get; private set; }
+        public bool IsBanned { get; private set; }
 
         public void Ban() => IsBanned = true;
 
@@ -207,54 +207,22 @@ namespace ConsoleAppB6P3
     {
         private const ConsoleColor DefaultColor = ConsoleColor.White;
 
+        public ConsoleColor WorkingColor { get; } = ConsoleColor.DarkGray;
+        public ConsoleColor AlertColor { get; } = ConsoleColor.Red;
+        public ConsoleColor WarningColor { get; } = ConsoleColor.White;
+
         public void PrintMessage(string message, ConsoleColor color = DefaultColor)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(message);
             Console.ResetColor();
         }
-
-        public ConsoleColor WorkingColor { get; } = ConsoleColor.DarkGray;
-        public ConsoleColor AlertColor { get; } = ConsoleColor.Red;
-        public ConsoleColor WarningColor { get; } = ConsoleColor.White;
     }
 
     public class Database
     {
         private List<Player> _players = new List<Player>();
         private Printer _printer = new Printer();
-
-        private bool TryGetPlayer(out Player player)
-        {
-            if (_players.Count == 0)
-            {
-                _printer.PrintMessage("В базе нет игроков", _printer.AlertColor);
-                Console.ReadKey();
-
-                player = null;
-                return false;
-            }
-
-            _printer.PrintMessage("Введите id игрока: ");
-
-            if (int.TryParse(Console.ReadLine(), out int id))
-            {
-                foreach (Player nextPlayer in _players)
-                {
-                    if (nextPlayer.Id == id)
-                    {
-                        player = nextPlayer;
-                        return true;
-                    }
-                }
-            }
-
-            _printer.PrintMessage("Игрок с таким id не найден", _printer.AlertColor);
-            Console.ReadKey();
-
-            player = null;
-            return false;
-        }
 
         public void CreatePlayer()
         {
@@ -332,8 +300,50 @@ namespace ConsoleAppB6P3
             Console.ReadKey();
         }
 
-        public List<Player> GetPlayers() => _players;
+        public List<Player> GetPlayers()
+        {
+            List<Player> listPlayers = new List<Player>();
+
+            for (int i = 0; i < _players.Count; i++)
+            {
+                listPlayers.Add(_players[i]);
+            }
+
+            return listPlayers;
+        }
 
         public void Attach(List<Player> players) => _players = players;
+
+        private bool TryGetPlayer(out Player player)
+        {
+            if (_players.Count == 0)
+            {
+                _printer.PrintMessage("В базе нет игроков", _printer.AlertColor);
+                Console.ReadKey();
+
+                player = null;
+                return false;
+            }
+
+            _printer.PrintMessage("Введите id игрока: ");
+
+            if (int.TryParse(Console.ReadLine(), out int id))
+            {
+                foreach (Player nextPlayer in _players)
+                {
+                    if (nextPlayer.Id == id)
+                    {
+                        player = nextPlayer;
+                        return true;
+                    }
+                }
+            }
+
+            _printer.PrintMessage("Игрок с таким id не найден", _printer.AlertColor);
+            Console.ReadKey();
+
+            player = null;
+            return false;
+        }
     }
 }
