@@ -22,7 +22,6 @@ namespace ConsoleAppB6P2
 
         public void Draw(int positionX, int positionY, char symbol = '@')
         {
-
             if (positionX < 0 && positionX > _maxX || positionY < 0 && positionY > _maxY)
                 return;
 
@@ -33,15 +32,15 @@ namespace ConsoleAppB6P2
 
     public class Player
     {
-        public char Symbol { get; private set; }
-        public int PositionX { get; private set; }
-        public int PositionY { get; private set; }
-
         public Player(char symbol, int positionX, int positionY)
         {
             Symbol = symbol;
             PositionX = positionX;
             PositionY = positionY;
         }
+
+        public char Symbol { get; private set; }
+        public int PositionX { get; private set; }
+        public int PositionY { get; private set; }
     }
 }
