@@ -63,7 +63,7 @@ namespace ConsoleAppB6P3
                         break;
 
                     case NewDatabaseCommand:
-                        _database = new Database();
+                        CreateDatabase();
                         break;
 
                     case ShowPlayersCommand:
@@ -109,6 +109,14 @@ namespace ConsoleAppB6P3
             }
 
             return true;
+        }
+
+        private void CreateDatabase()
+        {
+            _database = new Database();
+
+            _printer.PrintMessage("Создана пустая база данных", _printer.WarningColor);
+            Console.ReadKey();
         }
 
         private void TryShowPlayers()
@@ -209,7 +217,7 @@ namespace ConsoleAppB6P3
 
         public ConsoleColor WorkingColor { get; } = ConsoleColor.DarkGray;
         public ConsoleColor AlertColor { get; } = ConsoleColor.Red;
-        public ConsoleColor WarningColor { get; } = ConsoleColor.White;
+        public ConsoleColor WarningColor { get; } = ConsoleColor.Yellow;
 
         public void PrintMessage(string message, ConsoleColor color = DefaultColor)
         {
@@ -304,10 +312,8 @@ namespace ConsoleAppB6P3
         {
             List<Player> listPlayers = new List<Player>();
 
-            for (int i = 0; i < _players.Count; i++)
-            {
-                listPlayers.Add(_players[i]);
-            }
+            foreach (Player player in _players)
+                listPlayers.Add(player);
 
             return listPlayers;
         }
