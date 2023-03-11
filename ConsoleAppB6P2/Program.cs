@@ -17,12 +17,13 @@ namespace ConsoleAppB6P2
 
     public class Renderer
     {
+        private int _maxX = 100;
+        private int _maxY = 25;
+
         public void Draw(int positionX, int positionY, char symbol = '@')
         {
-            int maxX = 100;
-            int maxY = 25;
 
-            if (positionX < 0 && positionX > maxX || positionY < 0 && positionY > maxY)
+            if (positionX < 0 && positionX > _maxX || positionY < 0 && positionY > _maxY)
                 return;
 
             Console.SetCursorPosition(positionX, positionY);
