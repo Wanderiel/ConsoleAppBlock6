@@ -181,6 +181,8 @@ namespace ConsoleAppB6P3
                 fileStream.Close();
 
                 database.Attach(players);
+                players = null;
+
                 _printer.PrintMessage("Бада данных успешно загружена", _printer.WarningColor);
                 Console.ReadKey();
             }
@@ -321,7 +323,6 @@ namespace ConsoleAppB6P3
         public void Attach(List<Player> players)
         {
             _players = players;
-            players = null;
         }
 
         private bool TryGetPlayer(out Player player)
