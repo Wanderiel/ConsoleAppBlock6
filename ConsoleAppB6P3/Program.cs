@@ -318,7 +318,11 @@ namespace ConsoleAppB6P3
             return listPlayers;
         }
 
-        public void Attach(List<Player> players) => _players = players;
+        public void Attach(List<Player> players)
+        {
+            _players = players;
+            players = null;
+        }
 
         private bool TryGetPlayer(out Player player)
         {
