@@ -181,7 +181,6 @@ namespace ConsoleAppB6P3
                 fileStream.Close();
 
                 database.Attach(players);
-                players = null;
 
                 _printer.PrintMessage("Бада данных успешно загружена", _printer.WarningColor);
                 Console.ReadKey();
