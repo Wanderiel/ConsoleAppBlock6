@@ -460,8 +460,6 @@ namespace ConsoleAppB6P4
         public void TakeDeck() => _deck = new Deck();
 
         public Card NextCard() => _deck.GiveCard();
-
-        public int GetCountCards() => _deck.GetCount();
     }
 
     public class Card
@@ -487,8 +485,6 @@ namespace ConsoleAppB6P4
         }
 
         public Card GiveCard() => _cards.Count == 0 ? null : _cards.Pop();
-
-        public int GetCount() => _cards.Count;
 
         private void Create()
         {
