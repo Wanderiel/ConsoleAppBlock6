@@ -6,9 +6,26 @@ namespace ConsoleAppB6P4
     {
         static void Main(string[] args)
         {
-            Game21 game21 = new Game21();
+            Dictionary<string, int> points = new Dictionary<string, int>
+            {
+                { "2", 2 },
+                { "3", 3 },
+                { "4", 4 },
+                { "5", 5 },
+                { "6", 6 },
+                { "7", 7 },
+                { "8", 8 },
+                { "9", 9 },
+                { "10", 10 },
+                { "В", 2 },
+                { "Д", 3 },
+                { "К", 4 },
+                { "Т", 11 }
+            };
 
-            game21.Start();
+            Game21 game21 = new Game21(points);
+
+            game21.Play();
 
             Console.WriteLine("\nИгра окончена");
 
@@ -21,25 +38,22 @@ namespace ConsoleAppB6P4
     /// </summary>
     public class Game21
     {
-        private const string TakeCardCommand = "1";
-        private const string EndTurnCommand = "2";
-        private const string OutGameCommand = "3";
+        private const string CommandTakeCard = "1";
+        private const string CommandEndTurn = "2";
+        private const string CommandOutGame = "3";
 
         private Player[] _players;
         private Statistic _statistic;
         private Croupier _croupier = new Croupier();
 
-        private Dictionary<string, int> _points = new Dictionary<string, int>
-        {
-            { "2", 2}, {"3", 3 }, {"4", 4 }, {"5", 5 }, { "6", 6 }, {"7", 7 }, {"8", 8 },
-            {"9", 9 }, { "10", 10}, { "В", 2}, { "Д", 3}, { "К", 4}, {"Т", 11 }
-        };
+        private Dictionary<string, int> _points;
 
         private int _minPlayersount = 2;
         private int _playersCount;
 
-        public Game21()
+        public Game21(Dictionary<string, int> points)
         {
+            _points = points;
             _playersCount = GetPlayersCount();
         }
 
@@ -61,14 +75,14 @@ namespace ConsoleAppB6P4
             return 0;
         }
 
-        public void Start()
+        public void Play()
         {
             if (_playersCount < _minPlayersount)
                 return;
 
             ResetStatistic();
 
-            NextGame();
+            StartNextGame();
         }
 
         /// <summary>
@@ -104,7 +118,7 @@ namespace ConsoleAppB6P4
                 player.ResetHand();
         }
 
-        private void NextGame()
+        private void StartNextGame()
         {
             while (_statistic.IsPlaying)
             {
@@ -116,7 +130,7 @@ namespace ConsoleAppB6P4
 
                 GivePairAllPlayers();
 
-                Scoring();
+                CalculatePoints();
 
                 if (ChekGoldenPoint())
                 {
@@ -126,11 +140,11 @@ namespace ConsoleAppB6P4
                     continue;
                 }
 
-                NextTurn();
+                ExecuteNextTurn();
 
                 ChekWin();
 
-                _statistic.GameOver();
+                _statistic.CheckGameOver();
             }
 
         }
@@ -149,11 +163,11 @@ namespace ConsoleAppB6P4
 
         private void TakeCard(int numbrePlayer)
         {
-            Card card = _croupier.NextCard();
+            Card card = _croupier.TakeNextCard();
 
             _players[numbrePlayer].TakeCard(card);
 
-            int score = GetScore(_players[numbrePlayer].GetCardsOnHands());
+            int score = GetPoints(_players[numbrePlayer].GetCardsOnHands());
 
             _statistic.SetPoints(numbrePlayer, score);
         }
@@ -166,21 +180,21 @@ namespace ConsoleAppB6P4
             Console.WriteLine();
         }
 
-        private void Scoring()
+        private void CalculatePoints()
         {
             for (int i = 0; i < _players.Length; i++)
-                _statistic.SetPoints(i, GetScore(_players[i].GetCardsOnHands()));
+                _statistic.SetPoints(i, GetPoints(_players[i].GetCardsOnHands()));
         }
 
-        private int GetScore(List<Card> cards)
+        private int GetPoints(List<Card> cards)
         {
-            int score = 0;
+            int points = 0;
 
             foreach (Card card in cards)
                 if (_points.ContainsKey(card.Name))
-                    score += _points[card.Name];
+                    points += _points[card.Name];
 
-            return score;
+            return points;
         }
 
         private bool ChekGoldenPoint()
@@ -209,20 +223,20 @@ namespace ConsoleAppB6P4
             return isGoldenPoint;
         }
 
-        private void NextTurn()
+        private void ExecuteNextTurn()
         {
             for (int i = 1; i < _players.Length; i++)
             {
                 if (_statistic.InGame[i] == false)
                     continue;
 
-                TurnPlayer(i);
+                ExecuteTurnPlayer(i);
             }
 
-            TurnCasino();
+            ExecuteTurnCasino();
         }
 
-        private void TurnPlayer(int playerNumber)
+        private void ExecuteTurnPlayer(int playerNumber)
         {
             bool isTurn = true;
 
@@ -233,15 +247,15 @@ namespace ConsoleAppB6P4
 
                 switch (Console.ReadLine())
                 {
-                    case TakeCardCommand:
+                    case CommandTakeCard:
                         isTurn = TryTakeCard(playerNumber);
                         break;
 
-                    case EndTurnCommand:
+                    case CommandEndTurn:
                         isTurn = false;
                         break;
 
-                    case OutGameCommand:
+                    case CommandOutGame:
                         isTurn = _statistic.OutGame(playerNumber);
                         break;
                 }
@@ -261,9 +275,9 @@ namespace ConsoleAppB6P4
 
         private void ShowMenu()
         {
-            Console.WriteLine($"\n{TakeCardCommand} Полчить карту" +
-                $"\n{EndTurnCommand} Завершить ход" +
-                $"\n{OutGameCommand} Покинуть игру\n");
+            Console.WriteLine($"\n{CommandTakeCard} Полчить карту" +
+                $"\n{CommandEndTurn} Завершить ход" +
+                $"\n{CommandOutGame} Покинуть игру\n");
         }
 
         private bool TryTakeCard(int playerNumber)
@@ -283,7 +297,7 @@ namespace ConsoleAppB6P4
             return true;
         }
 
-        private void TurnCasino()
+        private void ExecuteTurnCasino()
         {
             int maxPoints = 21;
             int winPoints = GetWinPoints();
@@ -343,7 +357,7 @@ namespace ConsoleAppB6P4
             Winnings = new int[playersCount];
             Points = new int[playersCount];
 
-            AllInGame(playersCount);
+            AllowToGame(playersCount);
         }
 
         public bool IsPlaying { get; private set; } = true;
@@ -353,7 +367,7 @@ namespace ConsoleAppB6P4
         public int[] Winnings { get; private set; }
         public int[] Points { get; private set; }
 
-        public void GameOver()
+        public void CheckGameOver()
         {
             int inGame = 0;
 
@@ -411,7 +425,7 @@ namespace ConsoleAppB6P4
             Console.WriteLine();
         }
 
-        private void AllInGame(int playersCount)
+        private void AllowToGame(int playersCount)
         {
             for (int i = 0; i < playersCount; i++)
                 InGame[i] = true;
@@ -459,7 +473,7 @@ namespace ConsoleAppB6P4
 
         public void TakeDeck() => _deck = new Deck();
 
-        public Card NextCard() => _deck.GiveCard();
+        public Card TakeNextCard() => _deck.GiveCard();
     }
 
     public class Card
