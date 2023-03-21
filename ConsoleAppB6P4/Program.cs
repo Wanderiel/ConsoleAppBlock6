@@ -256,7 +256,7 @@ namespace ConsoleAppB6P4
                         break;
 
                     case CommandOutGame:
-                        isTurn = _statistic.OutGame(playerNumber);
+                        isTurn = LeaveGame(playerNumber);
                         break;
                 }
             }
@@ -296,6 +296,16 @@ namespace ConsoleAppB6P4
 
             return true;
         }
+
+        private bool LeaveGame(int playerNumber)
+        {
+            _players[playerNumber].ResetHand();
+            _statistic.SetPoints(playerNumber, 0);
+            _statistic.OutGame(playerNumber);
+
+            return false;
+        }
+
 
         private void ExecuteTurnCasino()
         {
@@ -387,12 +397,7 @@ namespace ConsoleAppB6P4
 
         public void SetPoints(int playerNumber, int points) => Points[playerNumber] = points;
 
-        public bool OutGame(int playerNumbers)
-        {
-            InGame[playerNumbers] = false;
-
-            return false;
-        }
+        public void OutGame(int playerNumbers) => InGame[playerNumbers] = false;
 
         public void SetName(int playerNumbers, string name) => Name[playerNumbers] = name;
 
