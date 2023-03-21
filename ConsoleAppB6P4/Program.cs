@@ -299,7 +299,6 @@ namespace ConsoleAppB6P4
 
         private bool LeaveGame(int playerNumber)
         {
-            _players[playerNumber].ResetHand();
             _statistic.SetPoints(playerNumber, 0);
             _statistic.OutGame(playerNumber);
 
