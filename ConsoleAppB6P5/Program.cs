@@ -12,6 +12,7 @@ namespace ConsoleAppB6P5
 
             Console.Clear();
             Console.WriteLine("Ввсего доброго!");
+
             Console.ReadKey();
         }
     }
@@ -123,6 +124,7 @@ namespace ConsoleAppB6P5
 
             if (int.TryParse(Console.ReadLine(), out int id))
             {
+                id--;
                 _storage.RemoveBook(id);
             }
         }
@@ -195,20 +197,6 @@ namespace ConsoleAppB6P5
 
         public void AddBook(Book book) => _books.Add(book);
 
-        private bool TryGetBook(int index, out Book book)
-        {
-            if (index < 0 || index >= _books.Count)
-            {
-                book = null;
-
-                return false;
-            }
-
-            book = _books[index];
-
-            return true;
-        }
-
         public void RemoveBook(int index)
         {
             if (TryGetBook(index, out Book book))
@@ -270,6 +258,20 @@ namespace ConsoleAppB6P5
                         books.Add(book);
 
             return books;
+        }
+
+        private bool TryGetBook(int index, out Book book)
+        {
+            if (index < 0 || index >= _books.Count)
+            {
+                book = null;
+
+                return false;
+            }
+
+            book = _books[index];
+
+            return true;
         }
     }
 

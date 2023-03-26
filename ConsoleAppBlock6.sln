@@ -16,7 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppB6P3", "ConsoleAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppB6P4", "ConsoleAppB6P4\ConsoleAppB6P4.csproj", "{12F5E0EF-5097-45CA-9257-F204CBFB909B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppB6P5", "ConsoleAppB6P5\ConsoleAppB6P5.csproj", "{D28FE86A-74CB-4D95-809A-D86365D4F0A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppB6P5", "ConsoleAppB6P5\ConsoleAppB6P5.csproj", "{D28FE86A-74CB-4D95-809A-D86365D4F0A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppB6P6", "ConsoleAppB6P6\ConsoleAppB6P6.csproj", "{C966A650-DD67-4209-9AA7-A75363EC8DCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{D28FE86A-74CB-4D95-809A-D86365D4F0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D28FE86A-74CB-4D95-809A-D86365D4F0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D28FE86A-74CB-4D95-809A-D86365D4F0A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C966A650-DD67-4209-9AA7-A75363EC8DCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C966A650-DD67-4209-9AA7-A75363EC8DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C966A650-DD67-4209-9AA7-A75363EC8DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C966A650-DD67-4209-9AA7-A75363EC8DCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
