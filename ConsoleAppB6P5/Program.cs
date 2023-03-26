@@ -6,116 +6,288 @@ namespace ConsoleAppB6P5
     {
         static void Main(string[] args)
         {
-            //Category category = new Category(0);
+            StaffMember staffMember = new StaffMember();
 
-            Rack rack = new Rack(1, "Сказки");
+            staffMember.Work();
 
-            rack.AddBook();
-            rack.ShowPlaces();
+            Console.Clear();
+            Console.WriteLine("Ввсего доброго!");
+            Console.ReadKey();
+        }
+    }
+
+    public class StaffMember
+    {
+        private Storage _storage = new Storage();
+
+        public void Work()
+        {
+            const string CommandAddBook = "1";
+            const string CommandRemoveBook = "2";
+            const string CommandShowAllBooks = "3";
+            const string CommandFindBookByTitle = "4";
+            const string CommandFindBookByAuthor = "5";
+            const string CommandFindBookByCategory = "6";
+            const string CommandFindBookByPublicationYear = "7";
+            const string CommandExit = "0";
+
+            bool isWorking = true;
+
+            while (isWorking)
+            {
+                Console.Clear();
+                Console.WriteLine($"Меню:" +
+                    $"\n{CommandAddBook}. Добавить книгу" +
+                    $"\n{CommandRemoveBook}. Удалить книгу" +
+                    $"\n{CommandShowAllBooks}. Показать список книг" +
+                    $"\n{CommandFindBookByTitle}. Найти книги по названию" +
+                    $"\n{CommandFindBookByAuthor}. Найти книги по автору" +
+                    $"\n{CommandFindBookByCategory}. Найти книги по жанру" +
+                    $"\n{CommandFindBookByPublicationYear}. Найти книги по году издания" +
+                    $"\n{CommandExit}. Выйти из программы");
+
+                switch (Console.ReadLine())
+                {
+                    case CommandAddBook:
+                        AddBook();
+                        break;
+
+                    case CommandRemoveBook:
+                        RemoveBook();
+                        break;
+
+                    case CommandShowAllBooks:
+                        ShowAllBooks();
+                        break;
+
+                    case CommandFindBookByTitle:
+                        FindBooksByTitle();
+                        break;
+
+                    case CommandFindBookByAuthor:
+                        FindBooksByAuthor();
+                        break;
+
+                    case CommandFindBookByCategory:
+                        FindBooksByCategory();
+                        break;
+
+                    case CommandFindBookByPublicationYear:
+                        FindBooksByPublicationYear();
+                        break;
+
+                    case CommandExit:
+                        isWorking = false;
+                        break;
+                }
+            }
+        }
+
+        private void AddBook()
+        {
+            Console.Clear();
+            Console.Write("Введите название книги: ");
+            string name = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(name))
+                return;
+
+            Console.Write("Введите ФИО/псевдоним автора: ");
+            string author = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(author))
+                return;
+
+            Console.Write("Укажите жанр книги: ");
+            string category = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(category))
+                return;
+
+            Console.Write("Укажите год публикации: ");
+
+            if (int.TryParse(Console.ReadLine(), out int year) == false)
+                return;
+
+            Book book = new Book(name, author, category, year);
+            _storage.AddBook(book);
+
+            Console.WriteLine("Книга успешно добавлена");
+            Console.ReadKey();
+        }
+
+        private void RemoveBook()
+        {
+            Console.Clear();
+            Console.Write("Введите индекс книги: ");
+
+            if (int.TryParse(Console.ReadLine(), out int id))
+            {
+                _storage.RemoveBook(id);
+            }
+        }
+
+        private void PrintBooksInfo(List<Book> books)
+        {
+            if (books.Count == 0)
+                Console.WriteLine("Пусто...");
+            else
+                foreach (Book book in books)
+                    book.ShowInfo();
 
             Console.ReadKey();
+        }
+
+        private void ShowAllBooks()
+        {
+            Console.Clear();
+            Console.WriteLine("Список всех книг:");
+
+            List<Book> books = _storage.GetAllBooks();
+
+            PrintBooksInfo(books);
+        }
+
+        private void FindBooksByTitle()
+        {
+            Console.Clear();
+            Console.Write("Введите название (или часть) книги: ");
+
+            List<Book> books = _storage.GetBooksByTitle(Console.ReadLine());
+
+            PrintBooksInfo(books);
+        }
+
+        private void FindBooksByAuthor()
+        {
+            Console.Clear();
+            Console.Write("Введите автора (или часть) книги: ");
+
+            List<Book> books = _storage.GetBooksByAuthor(Console.ReadLine());
+
+            PrintBooksInfo(books);
+        }
+
+        private void FindBooksByCategory()
+        {
+            Console.Clear();
+            Console.Write("Введите жанр (или часть) книги: ");
+
+            List<Book> books = _storage.GetBooksByCategory(Console.ReadLine());
+
+            PrintBooksInfo(books);
+        }
+
+        private void FindBooksByPublicationYear()
+        {
+            Console.Clear();
+            Console.Write("Введите год издания: ");
+
+            List<Book> books = _storage.GetBooksByPublicationYear(Console.ReadLine());
+
+            PrintBooksInfo(books);
         }
     }
 
     public class Storage
     {
+        private List<Book> _books = new List<Book>();
 
+        public void AddBook(Book book) => _books.Add(book);
 
-    }
-
-    public class Rack
-    {
-        private static int _tiersCount = 6;
-        private static int _tiersCapacity = 15;
-        private Book[,] _books = new Book[_tiersCount, _tiersCapacity];
-
-        public Rack(int id, string category)
+        private bool TryGetBook(int index, out Book book)
         {
-            Id = id;
-            Category = category;
-        }
-
-        public int Id { get; }
-        public string Category { get; }
-
-        public void AddBook()
-        {
-            _books[3, 5] = new Book();
-            _books[1, 2] = new Book();
-            _books[2, 7] = new Book();
-            _books[0, 12] = new Book();
-        }
-
-        public void ShowPlaces()
-        {
-            const int Width = 5;
-            string line = new string('▬', _tiersCapacity * (Width + 1) + 1);
-
-            Console.WriteLine(line);
-
-            for (int i = 0; i < _tiersCount; i++)
+            if (index < 0 || index >= _books.Count)
             {
-                Console.Write("|");
+                book = null;
 
-                for (int j = 0; j < _tiersCapacity; j++)
-                {
-                    Console.BackgroundColor = _books[i, j] == null ?
-                        ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
-
-                    string place = $"{i + 1}{j + 1} ";
-                    Console.Write($"{place,Width}");
-                    Console.ResetColor();
-                    Console.Write("|");
-                }
-
-                Console.WriteLine($"\n{line}");
+                return false;
             }
+
+            book = _books[index];
+
+            return true;
+        }
+
+        public void RemoveBook(int index)
+        {
+            if (TryGetBook(index, out Book book))
+            {
+                _books.Remove(book);
+                Console.WriteLine("Книга успешно удалена");
+                Console.ReadKey();
+            }
+        }
+
+        public List<Book> GetAllBooks() => new List<Book>(_books);
+
+        public List<Book> GetBooksByTitle(string title)
+        {
+            List<Book> books = new List<Book>();
+            title = title.Trim().ToLower();
+
+            foreach (Book book in _books)
+                if (book.Title.ToLower().Contains(title))
+                    books.Add(book);
+
+            return books;
+        }
+
+        public List<Book> GetBooksByAuthor(string author)
+        {
+            List<Book> books = new List<Book>();
+            author = author.Trim().ToLower();
+
+            foreach (Book book in _books)
+                if (book.Autor.ToLower().Contains(author))
+                    books.Add(book);
+
+            return books;
+        }
+
+        public List<Book> GetBooksByCategory(string category)
+        {
+            List<Book> books = new List<Book>();
+            category = category.Trim().ToLower();
+
+            foreach (Book book in _books)
+                if (book.Category.ToLower().Contains(category))
+                    books.Add(book);
+
+            return books;
+        }
+
+        public List<Book> GetBooksByPublicationYear(string input)
+        {
+            List<Book> books = new List<Book>();
+
+            if (int.TryParse(input, out int year))
+                foreach (Book book in _books)
+                    if (book.PublicationYear == year)
+                        books.Add(book);
+
+            return books;
         }
     }
 
     public class Book
     {
-        public Book() { }
-
-        public Book(int id, string title, string autor, int publicationYear, string description)
+        public Book(string title, string author, string category, int publicationYear)
         {
-            Id = id;
             Title = title;
-            Autor = autor;
+            Autor = author;
+            Category = category;
             PublicationYear = publicationYear;
-            Description = description;
         }
 
-        public int Id { get; }
         public string Title { get; }
+        public string Category { get; }
         public string Autor { get; }
         public int PublicationYear { get; }
-        public string Description { get; }
 
         public void ShowInfo()
         {
-            Console.WriteLine($"{Id}, {Title}, {Autor}, {PublicationYear}" +
-                $"\n{Description}");
-        }
-    }
-
-    public class Category
-    {
-        private int _id;
-        private string _name;
-
-        public Category(int maxId)
-        {
-            Create(maxId);
-        }
-
-        public void Create(int maxId)
-        {
-            Console.Write("\nВведите название категории: ");
-            string name = Console.ReadLine();
-
-            _id = maxId + 1;
-            _name = name == string.Empty ? $"Категория {_id}" : name;
+            Console.WriteLine($"{Title}, {Autor}, {Category}, {PublicationYear}");
         }
     }
 }
