@@ -226,9 +226,10 @@ namespace ConsoleAppB6P5
             List<Book> books = new List<Book>();
             title = title.Trim().ToLower();
 
-            foreach (Book book in _books)
-                if (book.Title.ToLower().Contains(title))
-                    books.Add(book);
+            if (string.IsNullOrEmpty(title) == false)
+                foreach (Book book in _books)
+                    if (book.Title.ToLower().Contains(title))
+                        books.Add(book);
 
             return books;
         }
@@ -238,9 +239,10 @@ namespace ConsoleAppB6P5
             List<Book> books = new List<Book>();
             author = author.Trim().ToLower();
 
-            foreach (Book book in _books)
-                if (book.Autor.ToLower().Contains(author))
-                    books.Add(book);
+            if (string.IsNullOrEmpty(author) == false)
+                foreach (Book book in _books)
+                    if (book.Autor.ToLower().Contains(author))
+                        books.Add(book);
 
             return books;
         }
@@ -250,9 +252,10 @@ namespace ConsoleAppB6P5
             List<Book> books = new List<Book>();
             category = category.Trim().ToLower();
 
-            foreach (Book book in _books)
-                if (book.Category.ToLower().Contains(category))
-                    books.Add(book);
+            if (string.IsNullOrEmpty(category) == false)
+                foreach (Book book in _books)
+                    if (book.Category.ToLower().Contains(category))
+                        books.Add(book);
 
             return books;
         }
