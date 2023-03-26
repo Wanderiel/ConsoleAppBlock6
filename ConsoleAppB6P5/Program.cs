@@ -12,7 +12,6 @@ namespace ConsoleAppB6P5
 
             Console.Clear();
             Console.WriteLine("Ввсего доброго!");
-
             Console.ReadKey();
         }
     }
@@ -123,10 +122,7 @@ namespace ConsoleAppB6P5
             Console.Write("Введите индекс книги: ");
 
             if (int.TryParse(Console.ReadLine(), out int id))
-            {
-                id--;
                 _storage.RemoveBook(id);
-            }
         }
 
         private void PrintBooksInfo(List<Book> books)
@@ -134,8 +130,11 @@ namespace ConsoleAppB6P5
             if (books.Count == 0)
                 Console.WriteLine("Пусто...");
             else
-                foreach (Book book in books)
-                    book.ShowInfo();
+                for (int i = 0; i < books.Count; i++)
+                {
+                    Console.Write($"{i} - ");
+                    books[i].ShowInfo();
+                }
 
             Console.ReadKey();
         }
