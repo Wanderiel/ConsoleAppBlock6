@@ -1,0 +1,344 @@
+[
+  {
+    "Name": "Арбалетные болты (20)",
+    "Category": "Боеприпасы",
+    "Price": 1,
+    "Weight": 1.5
+  },
+  {
+    "Name": "Снаряды для пращи (20)",
+    "Category": "Боеприпасы",
+    "Price": 4,
+    "Weight": 1.5
+  },
+  {
+    "Name": "Стрелы (20)",
+    "Category": "Боеприпасы",
+    "Price": 1,
+    "Weight": 1
+  },
+  {
+    "Name": "Верёвка пеньковая",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 10
+  },
+  {
+    "Name": "Верёвка, шёлковая",
+    "Category": "Предмет",
+    "Price": 10,
+    "Weight": 5
+  },
+  {
+    "Name": "Весы, торговые",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 3
+  },
+  {
+    "Name": "Горшок, железный",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 10
+  },
+  {
+    "Name": "Духи (флакон)",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 0.1
+  },
+  {
+    "Name": "Замок",
+    "Category": "Предмет",
+    "Price": 10,
+    "Weight": 1
+  },
+  {
+    "Name": "Зелье лечения",
+    "Category": "Предмет",
+    "Price": 50,
+    "Weight": 0.5
+  },
+  {
+    "Name": "Кандалы",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 6
+  },
+  {
+    "Name": "Кирка",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 10
+  },
+  {
+    "Name": "Кислота (флакон)",
+    "Category": "Предмет",
+    "Price": 25,
+    "Weight": 1
+  },
+  {
+    "Name": "Книга",
+    "Category": "Предмет",
+    "Price": 25,
+    "Weight": 5
+  },
+  {
+    "Name": "Книга заклинаний",
+    "Category": "Предмет",
+    "Price": 50,
+    "Weight": 3
+  },
+  {
+    "Name": "Кольцо-печатка",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 0.1
+  },
+  {
+    "Name": "Комплект для лазания",
+    "Category": "Предмет",
+    "Price": 25,
+    "Weight": 12
+  },
+  {
+    "Name": "Комплект для рыбалки",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 4
+  },
+  {
+    "Name": "Комплект целителя",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 3
+  },
+  {
+    "Name": "Крюк-кошка",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 4
+  },
+  {
+    "Name": "Кувшин",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 4
+  },
+  {
+    "Name": "Ломик",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 5
+  },
+  {
+    "Name": "Лопата",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 5
+  },
+  {
+    "Name": "Волшебная палочка",
+    "Category": "Фокусировка магов",
+    "Price": 10,
+    "Weight": 1
+  },
+  {
+    "Name": "Жезл",
+    "Category": "Фокусировка магов",
+    "Price": 10,
+    "Weight": 2
+  },
+  {
+    "Name": "Кристалл",
+    "Category": "Фокусировка магов",
+    "Price": 10,
+    "Weight": 1
+  },
+  {
+    "Name": "Посох",
+    "Category": "Фокусировка магов",
+    "Price": 5,
+    "Weight": 4
+  },
+  {
+    "Name": "Сфера",
+    "Category": "Фокусировка магов",
+    "Price": 20,
+    "Weight": 3
+  },
+  {
+    "Name": "Молот, кузнечный",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 10
+  },
+  {
+    "Name": "Молоток",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 3
+  },
+  {
+    "Name": "Мыло",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 0.2
+  },
+  {
+    "Name": "Одежда, дорожная",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 4
+  },
+  {
+    "Name": "Одежда, костюм",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 4
+  },
+  {
+    "Name": "Одежда, обычная",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 3
+  },
+  {
+    "Name": "Одежда, отличная",
+    "Category": "Предмет",
+    "Price": 15,
+    "Weight": 6
+  },
+  {
+    "Name": "Охотничий капкан",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 25
+  },
+  {
+    "Name": "Песочные часы",
+    "Category": "Предмет",
+    "Price": 25,
+    "Weight": 1
+  },
+  {
+    "Name": "Перо",
+    "Category": "Предмет",
+    "Price": 2,
+    "Weight": 0.01
+  },
+  {
+    "Name": "Подзорная труба",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 1
+  },
+  {
+    "Name": "Противоядие (флакон)",
+    "Category": "Предмет",
+    "Price": 50,
+    "Weight": 0.5
+  },
+  {
+    "Name": "Ряса",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 4
+  },
+  {
+    "Name": "Святая вода (фляга)",
+    "Category": "Предмет",
+    "Price": 25,
+    "Weight": 1
+  },
+  {
+    "Name": "Амулет",
+    "Category": "Священный символ",
+    "Price": 5,
+    "Weight": 1
+  },
+  {
+    "Name": "Реликварий",
+    "Category": "Священный символ",
+    "Price": 5,
+    "Weight": 2
+  },
+  {
+    "Name": "Эмблема",
+    "Category": "Священный символ",
+    "Price": 5,
+    "Weight": 0.1
+  },
+  {
+    "Name": "Спальник",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 7
+  },
+  {
+    "Name": "Увеличительное стекло",
+    "Category": "Предмет",
+    "Price": 100,
+    "Weight": 0.1
+  },
+  {
+    "Name": "Флакон, пустой",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 0.2
+  },
+  {
+    "Name": "Веточка омелы",
+    "Category": "Фокусировка друидов",
+    "Price": 1,
+    "Weight": 0.2
+  },
+  {
+    "Name": "Деревянный посох",
+    "Category": "Фокусировка друидов",
+    "Price": 5,
+    "Weight": 4
+  },
+  {
+    "Name": "Тисовая палочка",
+    "Category": "Фокусировка друидов",
+    "Price": 10,
+    "Weight": 1
+  },
+  {
+    "Name": "Тотем",
+    "Category": "Фокусировка друидов",
+    "Price": 1,
+    "Weight": 1
+  },
+  {
+    "Name": "Фонарь, закрытый",
+    "Category": "Предмет",
+    "Price": 5,
+    "Weight": 2
+  },
+  {
+    "Name": "Фонарь, направленный",
+    "Category": "Предмет",
+    "Price": 10,
+    "Weight": 2
+  },
+  {
+    "Name": "Чернила (бутылочка)",
+    "Category": "Предмет",
+    "Price": 10,
+    "Weight": 0.1
+  },
+  {
+    "Name": "Шипы, железные (10)",
+    "Category": "Предмет",
+    "Price": 1,
+    "Weight": 5
+  },
+  {
+    "Name": "Яд, простой (флакон)",
+    "Category": "Предмет",
+    "Price": 100,
+    "Weight": 0.5
+  }
+]
