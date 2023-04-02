@@ -8,17 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="World\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="World\armors.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="World\items.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="World\weapons.json">
+    <None Update="items.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace ConsoleAppB6P6
 {
@@ -7,45 +8,40 @@ namespace ConsoleAppB6P6
     {
         static void Main(string[] args)
         {
-            Demiurge demiurge = new Demiurge();
+            Shop shop = new Shop();
 
-            demiurge.BreatheLife();
+            shop.Work();
 
             Console.ReadKey();
         }
     }
 
-    public class Demiurge
+    public class Shop
     {
-        private readonly string _worldName = "World";
+        private Random _random = new Random();
+        private List<Item> _items = new List<Item>();
+        private Player? _player;
+        private Trader? _trader;
 
-        private World _world = new World();
-
-        public Demiurge()
-        {
-            CreateWorld();
-        }
-
-        public void BreatheLife() => _world.Live();
-
-        private void CreateWorld()
+        public Shop()
         {
             CreateItems();
             CreatePersons();
         }
 
+        public void Work()
+        {
+            bool isOpen = true;
+
+            while (isOpen)
+            {
+
+            }
+        }
+
         private void CreateItems()
         {
-            List<Item> items = new List<Item>();
-            List<Item> loadItems = LoadItems($@"{_worldName}\items.json");
-            List<Armor> loadArmors = LoadArmors($@"{_worldName}\armors.json");
-            List<Weapon> loadWeapons = LoadWeapons($@"{_worldName}\weapons.json");
-
-            items.AddRange(loadItems);
-            items.AddRange(loadArmors);
-            items.AddRange(loadWeapons);
-
-            _world.RevealItems(items);
+            _items = LoadItems("items.json");
         }
 
         private List<Item> LoadItems(string path)
@@ -57,90 +53,28 @@ namespace ConsoleAppB6P6
             return items;
         }
 
-        private List<Armor> LoadArmors(string path)
-        {
-            Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            List<Armor> armors = JsonSerializer.Deserialize<List<Armor>>(fileStream);
-            fileStream.Close();
-
-            return armors;
-        }
-
-        private List<Weapon> LoadWeapons(string path)
-        {
-            Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            List<Weapon> weapons = JsonSerializer.Deserialize<List<Weapon>>(fileStream);
-            fileStream.Close();
-
-            return weapons;
-        }
-
         private void CreatePersons()
         {
-            List<Person> persons = new List<Person>()
-            {
-                new Person("Дровакин", 16, 0, false),
-                new Person("Эль'Ри'сад", 14, 0, true),
-            };
+            int minMoney = 301;
+            int maxMoney = 1001;
 
-            _world.RevealPersons(persons);
+            _player = new Player("Дровакин", 160, _random.Next(minMoney, maxMoney));
+            _trader = new Trader("Эль'Ри'сад");
+
+            FillInventoryRandomItems();
         }
 
-        //private Inventory GetInventoryWithRandomItems()
-        //{
-        //    Random random = new Random();
-        //    List<Item> items = _world.GetItems();
-        //    List<Item> randomItems = new List<Item>();
-        //    int countItem = 20;
-
-        //    for (int i = 0; i < countItem; i++)
-        //    {
-        //        randomItems.Add(items[random.Next(items.Count)]);
-        //    }
-
-        //    return new Inventory(randomItems);
-        //}
-    }
-
-    public class World
-    {
-        private Random _random = new Random();
-        private List<Item> _items;
-        private List<Person> _persons;
-
-        public void RevealItems(List<Item> items) =>
-            _items = items;
-
-        public void RevealPersons(List<Person> persons) =>
-            _persons = persons;
-
-        public List<Item> GetItems() =>
-            new List<Item>(_items);
-
-        public void Live()
+        private void FillInventoryRandomItems()
         {
-            GiveRiches();
-        }
+            if (_trader == null)
+                return;
 
-        private void GiveRiches()
-        {
-            int min = 300;
-            int max = 1001;
             int countItem = 30;
 
-            for (int i = 1; i < _persons.Count; i++)
-            {
-                _persons[i].AddMoney(_random.Next(min, max));
-                FillInventoryRandomItems(countItem, _persons[i]);
-            }
-        }
-
-        private void FillInventoryRandomItems(int countItem, Person person)
-        {
             for (int i = 0; i < countItem; i++)
             {
                 Item item = GetRandomItem();
-                person.AddToInventory(item);
+                _trader.AddToInventory(item);
             }
         }
 
@@ -148,68 +82,88 @@ namespace ConsoleAppB6P6
             _items[_random.Next(_items.Count)];
     }
 
+
     public class Person
     {
-        private int _strength;
-        private int _money;
-        private Inventory _inventory = new Inventory();
-        private bool _hasStorage;
+        protected int Money;
+        protected Inventory Inventory = new Inventory();
 
-        public Person(string name, int strength, int money, bool hasStorage)
+        public Person(string name, int money)
         {
             Name = name;
-            _strength = strength;
-            _money = money;
-            _hasStorage = hasStorage;
+            Money = money;
         }
 
         public string Name { get; }
-        public double CarryWeight
-        {
-            get
-            {
-                int multiplier = 10;
-                return _strength * multiplier;
-            }
-        }
 
-        public void AddMoney(int money) =>
-            _money += money;
+        public void AddToInventory(Item item) =>
+            Inventory.AddItem(item);
 
         public void ShowInventory() =>
-            _inventory.ShowItems();
+            Inventory.ShowItems();
+    }
 
-        public void AddToInventory(Item item)
+    public class Player : Person
+    {
+        public Player(string name, int carryWeight, int money)
+            : base(name, money)
         {
-            if (CanAddItem(item))
-                _inventory.AddItem(item);
+            CarryWeight = carryWeight;
         }
+
+        public double CarryWeight { get; }
+
+        public void TakeAwayMoney(int money) =>
+            Money -= money;
 
         private bool CanAddItem(Item item)
         {
-            if (_hasStorage)
-                return true;
+            double totalWeigth = Inventory.TotalWeight + item.Weight;
 
-            double weigth = _inventory.TotalWeight + item.Weight;
-
-            if (weigth > CarryWeight)
-                return false;
-
-            return true;
+            return totalWeigth <= CarryWeight;
         }
 
-        private bool CanPay(Item item)
-        {
-            if (_money < item.Price)
-                return false;
+        private bool CanPay(Item item) =>
+            Money < item.Price;
 
-            return true;
+    }
+
+    public class Trader : Person
+    {
+        public Trader(string name) : base(name, 0) { }
+
+        public void SaleItem(Item item)
+        {
+            if (item == null)
+                return;
+
+            AddMoney(item.Price);
+            Inventory.RemoveItem(item);
+        }
+
+        public void AddMoney(int money) =>
+            Money += money;
+
+        public Item GetItem(int index)
+        {
+            if (index < 0)
+                return null;
+
+            if (index > Inventory.Count)
+                return null;
+
+            return Inventory.GetItem(index);
         }
     }
 
     public class Inventory
     {
         private List<Item> _items = new List<Item>();
+
+        public int Count
+        {
+            get => _items.Count;
+        }
 
         public double TotalWeight
         {
@@ -224,7 +178,7 @@ namespace ConsoleAppB6P6
             }
         }
 
-        public void AddItem(Item item) => 
+        public void AddItem(Item item) =>
             _items.Add(item);
 
         public void RemoveItem(Item item)
@@ -243,7 +197,10 @@ namespace ConsoleAppB6P6
             Console.WriteLine();
         }
 
-        public List<Item> GetItems() => 
+        public Item GetItem(int index) =>
+            _items[index];
+
+        public List<Item> GetItems() =>
             new List<Item>(_items);
     }
 
@@ -269,49 +226,6 @@ namespace ConsoleAppB6P6
             const int Width3 = 5;
 
             Console.WriteLine($"{Name,Width1} | {Category,Width2}  |  цена: {Price,Width3}  |  вес: {Weight,Width3}  |");
-        }
-    }
-
-    public class Armor : Item
-    {
-        public Armor(string name, string category, int defence, int price, double weight) :
-            base(name, category, price, weight)
-        {
-            Defence = defence;
-        }
-
-        public int Defence { get; }
-
-        public override void ShowInfo()
-        {
-            const int Width1 = -25;
-            const int Width2 = 22;
-            const int Width3 = 5;
-            const int Width4 = 3;
-
-            Console.WriteLine($"{Name,Width1} | {Category,Width2}  |  цена: {Price,Width3}  |  вес: {Weight,Width3}  |" +
-                $"  Защита: {Defence,Width4}  |");
-        }
-    }
-
-    public class Weapon : Item
-    {
-        public Weapon(string name, string category, int damage, int price, double weight) :
-            base(name, category, price, weight)
-        {
-            Damage = damage;
-        }
-
-        public int Damage { get; }
-
-        public override void ShowInfo()
-        {
-            const int Width1 = -25;
-            const int Width2 = 22;
-            const int Width3 = 5;
-
-            Console.WriteLine($"{Name,Width1} | {Category,Width2}  |  цена: {Price,Width3}  |  вес: {Weight,Width3}  |" +
-                $"  Урон: {Damage,Width3}  |");
         }
     }
 }
