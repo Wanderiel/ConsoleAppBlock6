@@ -25,7 +25,7 @@ namespace ConsoleAppB6P6
 
         public Shop()
         {
-            CreateItems();
+            LoadItems();
             CreatePersons();
         }
 
@@ -39,18 +39,13 @@ namespace ConsoleAppB6P6
             }
         }
 
-        private void CreateItems()
+        private void LoadItems()
         {
-            _items = LoadItems("items.json");
-        }
-
-        private List<Item> LoadItems(string path)
-        {
+            string path = "items.json";
+            
             Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            List<Item> items = JsonSerializer.Deserialize<List<Item>>(fileStream);
+            _items = JsonSerializer.Deserialize<List<Item>>(fileStream);
             fileStream.Close();
-
-            return items;
         }
 
         private void CreatePersons()
