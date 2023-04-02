@@ -1,0 +1,247 @@
+[
+  {
+    "Damage": 6,
+    "Name": "Боевой посох",
+    "Category": "Простое рукопашное",
+    "Price": 2,
+    "Weight": 4
+  },
+  {
+    "Damage": 6,
+    "Name": "Булава",
+    "Category": "Простое рукопашное",
+    "Price": 5,
+    "Weight": 4
+  },
+  {
+    "Damage": 4,
+    "Name": "Дубинка",
+    "Category": "Простое рукопашное",
+    "Price": 1,
+    "Weight": 2
+  },
+  {
+    "Damage": 4,
+    "Name": "Кинжал",
+    "Category": "Простое рукопашное",
+    "Price": 2,
+    "Weight": 1
+  },
+  {
+    "Damage": 6,
+    "Name": "Копьё",
+    "Category": "Простое рукопашное",
+    "Price": 1,
+    "Weight": 3
+  },
+  {
+    "Damage": 4,
+    "Name": "Лёгкий молот",
+    "Category": "Простое рукопашное",
+    "Price": 2,
+    "Weight": 2
+  },
+  {
+    "Damage": 6,
+    "Name": "Метательное копьё",
+    "Category": "Простое рукопашное",
+    "Price": 5,
+    "Weight": 2
+  },
+  {
+    "Damage": 8,
+    "Name": "Палица",
+    "Category": "Простое рукопашное",
+    "Price": 2,
+    "Weight": 10
+  },
+  {
+    "Damage": 6,
+    "Name": "Ручной топор",
+    "Category": "Простое рукопашное",
+    "Price": 5,
+    "Weight": 2
+  },
+  {
+    "Damage": 4,
+    "Name": "Серп",
+    "Category": "Простое рукопашное",
+    "Price": 1,
+    "Weight": 2
+  },
+  {
+    "Damage": 8,
+    "Name": "Арбалет, лёгкий",
+    "Category": "Простое дальнобойное",
+    "Price": 25,
+    "Weight": 5
+  },
+  {
+    "Damage": 4,
+    "Name": "Дротик",
+    "Category": "Простое дальнобойное",
+    "Price": 5,
+    "Weight": 0.25
+  },
+  {
+    "Damage": 6,
+    "Name": "Короткий лук",
+    "Category": "Простое дальнобойное",
+    "Price": 25,
+    "Weight": 2
+  },
+  {
+    "Damage": 4,
+    "Name": "Праща",
+    "Category": "Простое дальнобойное",
+    "Price": 1,
+    "Weight": 0.5
+  },
+  {
+    "Damage": 10,
+    "Name": "Алебарда",
+    "Category": "Воинское рукопашное",
+    "Price": 20,
+    "Weight": 6
+  },
+  {
+    "Damage": 8,
+    "Name": "Боевая кирка",
+    "Category": "Воинское рукопашное",
+    "Price": 5,
+    "Weight": 2
+  },
+  {
+    "Damage": 8,
+    "Name": "Боевой молот",
+    "Category": "Воинское рукопашное",
+    "Price": 15,
+    "Weight": 2
+  },
+  {
+    "Damage": 8,
+    "Name": "Боевой топор",
+    "Category": "Воинское рукопашное",
+    "Price": 10,
+    "Weight": 4
+  },
+  {
+    "Damage": 10,
+    "Name": "Глефа",
+    "Category": "Воинское рукопашное",
+    "Price": 20,
+    "Weight": 6
+  },
+  {
+    "Damage": 12,
+    "Name": "Двуручный меч",
+    "Category": "Воинское рукопашное",
+    "Price": 50,
+    "Weight": 6
+  },
+  {
+    "Damage": 12,
+    "Name": "Длинное копьё",
+    "Category": "Воинское рукопашное",
+    "Price": 10,
+    "Weight": 6
+  },
+  {
+    "Damage": 8,
+    "Name": "Длинный меч",
+    "Category": "Воинское рукопашное",
+    "Price": 15,
+    "Weight": 3
+  },
+  {
+    "Damage": 4,
+    "Name": "Кнут",
+    "Category": "Воинское рукопашное",
+    "Price": 2,
+    "Weight": 3
+  },
+  {
+    "Damage": 6,
+    "Name": "Короткий меч",
+    "Category": "Воинское рукопашное",
+    "Price": 10,
+    "Weight": 2
+  },
+  {
+    "Damage": 6,
+    "Name": "Молот",
+    "Category": "Воинское рукопашное",
+    "Price": 10,
+    "Weight": 10
+  },
+  {
+    "Damage": 8,
+    "Name": "Моргенштерн",
+    "Category": "Воинское рукопашное",
+    "Price": 15,
+    "Weight": 4
+  },
+  {
+    "Damage": 10,
+    "Name": "Пика",
+    "Category": "Воинское рукопашное",
+    "Price": 5,
+    "Weight": 18
+  },
+  {
+    "Damage": 8,
+    "Name": "Рапира",
+    "Category": "Воинское рукопашное",
+    "Price": 25,
+    "Weight": 2
+  },
+  {
+    "Damage": 12,
+    "Name": "Секира",
+    "Category": "Воинское рукопашное",
+    "Price": 30,
+    "Weight": 7
+  },
+  {
+    "Damage": 6,
+    "Name": "Скимитар",
+    "Category": "Воинское рукопашное",
+    "Price": 25,
+    "Weight": 3
+  },
+  {
+    "Damage": 6,
+    "Name": "Трезубец",
+    "Category": "Воинское рукопашное",
+    "Price": 5,
+    "Weight": 4
+  },
+  {
+    "Damage": 8,
+    "Name": "Цеп",
+    "Category": "Воинское рукопашное",
+    "Price": 10,
+    "Weight": 2
+  },
+  {
+    "Damage": 6,
+    "Name": "Арбалет, ручной",
+    "Category": "Воинское дальнобойное",
+    "Price": 75,
+    "Weight": 3
+  },
+  {
+    "Damage": 10,
+    "Name": "Арбалет, тяжёлый",
+    "Category": "Воинское дальнобойное",
+    "Price": 50,
+    "Weight": 18
+  },
+  {
+    "Damage": 8,
+    "Name": "Длинный лук",
+    "Category": "Воинское дальнобойное",
+    "Price": 50,
+    "Weight": 2
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "ArmorClass": 11,
+    "Name": "Стёганый доспех",
+    "Category": "Лёгкая броня",
+    "Price": 5,
+    "Weight": 8
+  },
+  {
+    "ArmorClass": 11,
+    "Name": "Кожаный доспех",
+    "Category": "Лёгкая броня",
+    "Price": 10,
+    "Weight": 10
+  },
+  {
+    "ArmorClass": 12,
+    "Name": "Клёпанный доспех",
+    "Category": "Лёгкая броня",
+    "Price": 45,
+    "Weight": 13
+  },
+  {
+    "ArmorClass": 12,
+    "Name": "Шкурный доспех",
+    "Category": "Средняя броня",
+    "Price": 10,
+    "Weight": 12
+  },
+  {
+    "ArmorClass": 13,
+    "Name": "Кольчужная рубаха",
+    "Category": "Средняя броня",
+    "Price": 50,
+    "Weight": 20
+  },
+  {
+    "ArmorClass": 14,
+    "Name": "Чешуйчатый доспех",
+    "Category": "Средняя броня",
+    "Price": 50,
+    "Weight": 45
+  },
+  {
+    "ArmorClass": 14,
+    "Name": "Кираса",
+    "Category": "Средняя броня",
+    "Price": 400,
+    "Weight": 20
+  },
+  {
+    "ArmorClass": 15,
+    "Name": "Полулаты",
+    "Category": "Средняя броня",
+    "Price": 750,
+    "Weight": 40
+  },
+  {
+    "ArmorClass": 14,
+    "Name": "Колечный доспех",
+    "Category": "Тяжёлая броня",
+    "Price": 30,
+    "Weight": 40
+  },
+  {
+    "ArmorClass": 16,
+    "Name": "Кольчуга",
+    "Category": "Тяжёлая броня",
+    "Price": 75,
+    "Weight": 55
+  },
+  {
+    "ArmorClass": 17,
+    "Name": "Наборный доспех",
+    "Category": "Тяжёлая броня",
+    "Price": 200,
+    "Weight": 60
+  },
+  {
+    "ArmorClass": 18,
+    "Name": "Латы",
+    "Category": "Тяжёлая броня",
+    "Price": 1,
+    "Weight": 65
+  },
+  {
+    "ArmorClass": 2,
+    "Name": "Щит",
+    "Category": "Щит",
+    "Price": 10,
+    "Weight": 6
+  }
+]
