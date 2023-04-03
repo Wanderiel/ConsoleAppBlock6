@@ -12,6 +12,10 @@ namespace ConsoleAppB6P6
 
             shop.Work();
 
+
+            Console.Clear();
+            Console.WriteLine("Всего доброго!");
+
             Console.ReadKey();
         }
     }
@@ -31,18 +35,53 @@ namespace ConsoleAppB6P6
 
         public void Work()
         {
+            const string CommandShowProducts = "1";
+            const string CommandBuyProduct = "2";
+            const string CommandShowInventory = "3";
+            const string CommandExit = "4";
+
             bool isOpen = true;
 
             while (isOpen)
             {
+                int money = _player.GetMoney();
 
+                Console.Clear();
+                Console.WriteLine($"Лавка \"Ломаная подкова\"" +
+                    $"\n{CommandShowProducts}. Посмотреть товары" +
+                    $"\n{CommandBuyProduct}. Купить товар" +
+                    $"\n{CommandShowInventory}. Посмотреть инвентарь" +
+                    $"\n{CommandExit}. Покинуть лавку" +
+                    $"\n\nЗолота в наличии - {money}");
+
+                switch (Console.ReadLine())
+                {
+                    case CommandShowProducts:
+                        ShowProducts();
+                        break;
+
+                    case CommandBuyProduct:
+                        BuyProduct(money);
+                        break;
+
+                    case CommandShowInventory:
+                        ShowInventory(money);
+                        break;
+
+                    case CommandExit:
+                        isOpen = false;
+                        break;
+                
+                }
+
+                Console.ReadKey();
             }
         }
 
         private void LoadItems()
         {
             string path = "items.json";
-            
+
             Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
             _items = JsonSerializer.Deserialize<List<Item>>(fileStream);
             fileStream.Close();
@@ -64,7 +103,7 @@ namespace ConsoleAppB6P6
             if (_trader == null)
                 return;
 
-            int countItem = 30;
+            int countItem = 20;
 
             for (int i = 0; i < countItem; i++)
             {
@@ -75,6 +114,50 @@ namespace ConsoleAppB6P6
 
         private Item GetRandomItem() =>
             _items[_random.Next(_items.Count)];
+
+        private void ShowProducts()
+        {
+            Console.Clear();
+            Console.WriteLine($"Торговец {_trader.Name}: список товаров");
+            _trader.ShowInventory();
+        }
+
+        private void BuyProduct(int money)
+        {
+            ShowProducts();
+            Console.Write($"Какой товар хотите приобрести? (Золто {money}) " +
+                "\nВведите индекс товара: ");
+
+            bool isSelected = int.TryParse(Console.ReadLine(), out int index);
+
+            if (isSelected)
+            {
+                Item item = _trader.GetItem(index);
+
+                if (item == null)
+                    return;
+
+                if (_player.TryBuyItem(item))
+                {
+                    _trader.SaleItem(item);
+                    Console.WriteLine($"Вы приобрели: {item.Name} за {item.Price}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"{_trader.Name} вас не понимает...");
+            }
+        }
+
+        private void ShowInventory(int money)
+        {
+            double inventoryWeidth = _player.GetInventoryWeight();
+
+            Console.Clear();
+            Console.WriteLine($"{_player.Name}: инвентарь (вес {inventoryWeidth}/{_player.CarryWeight}), " +
+                $"золота в наличии - {money}");
+            _player.ShowInventory();
+        }
     }
 
 
@@ -108,18 +191,38 @@ namespace ConsoleAppB6P6
 
         public double CarryWeight { get; }
 
+        public int GetMoney() =>
+            Money;
+
+        public double GetInventoryWeight() =>
+            Inventory.TotalWeight;
+
         public void TakeAwayMoney(int money) =>
             Money -= money;
 
-        private bool CanAddItem(Item item)
+        public bool TryBuyItem(Item item)
+        {
+            if (CanAddItem(item) && CanPay(item))
+            {
+                TakeAwayMoney(item.Price);
+                Inventory.AddItem(item);
+                return true;
+            }
+
+            Console.WriteLine("Вы не можете это купить");
+
+            return false;
+        }
+
+        public bool CanAddItem(Item item)
         {
             double totalWeigth = Inventory.TotalWeight + item.Weight;
 
             return totalWeigth <= CarryWeight;
         }
 
-        private bool CanPay(Item item) =>
-            Money < item.Price;
+        public bool CanPay(Item item) =>
+            Money >= item.Price;
 
     }
 
@@ -186,8 +289,13 @@ namespace ConsoleAppB6P6
 
         public void ShowItems()
         {
-            foreach (Item item in _items)
-                item.ShowInfo();
+            const int Width = 3;
+
+            for (int i = 0; i < _items.Count; i++)
+            {
+                Console.Write($"{i,3} | ");
+                _items[i].ShowInfo();
+            }
 
             Console.WriteLine();
         }
