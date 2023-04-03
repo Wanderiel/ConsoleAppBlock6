@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.Json;
-using System.Xml.Linq;
 
 namespace ConsoleAppB6P6
 {
