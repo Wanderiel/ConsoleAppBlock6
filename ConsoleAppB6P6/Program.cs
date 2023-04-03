@@ -11,7 +11,6 @@ namespace ConsoleAppB6P6
 
             shop.Work();
 
-
             Console.Clear();
             Console.WriteLine("Всего доброго!");
 
@@ -39,9 +38,9 @@ namespace ConsoleAppB6P6
             const string CommandShowInventory = "3";
             const string CommandExit = "4";
 
-            bool isOpen = true;
+            bool isTrading = true;
 
-            while (isOpen)
+            while (isTrading)
             {
                 int money = _player.GetMoney();
 
@@ -68,7 +67,7 @@ namespace ConsoleAppB6P6
                         break;
 
                     case CommandExit:
-                        isOpen = false;
+                        isTrading = false;
                         break;
                 
                 }
@@ -159,7 +158,6 @@ namespace ConsoleAppB6P6
         }
     }
 
-
     public class Person
     {
         protected int Money;
@@ -222,7 +220,6 @@ namespace ConsoleAppB6P6
 
         public bool CanPay(Item item) =>
             Money >= item.Price;
-
     }
 
     public class Trader : Person
@@ -301,9 +298,6 @@ namespace ConsoleAppB6P6
 
         public Item GetItem(int index) =>
             _items[index];
-
-        public List<Item> GetItems() =>
-            new List<Item>(_items);
     }
 
     public class Item
