@@ -69,7 +69,6 @@ namespace ConsoleAppB6P6
                     case CommandExit:
                         isTrading = false;
                         break;
-
                 }
 
                 Console.ReadKey();
