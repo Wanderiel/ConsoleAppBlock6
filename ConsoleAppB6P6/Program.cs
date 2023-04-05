@@ -143,9 +143,8 @@ namespace ConsoleAppB6P6
         private void ShowInventory()
         {
             Console.Clear();
-            Console.WriteLine($"{_player.Name}: инвентарь (вес {_player.InventoryWeight}/{_player.CarryWeight})");
-            _player.ShowPurse();
             _player.ShowInventory();
+            _player.ShowPurse();
         }
     }
 
@@ -165,7 +164,7 @@ namespace ConsoleAppB6P6
         public void AddToInventory(Item item) =>
             Inventory.Add(item);
 
-        public void ShowInventory() =>
+        public virtual void ShowInventory() =>
             Inventory.ShowItems();
     }
 
@@ -198,6 +197,12 @@ namespace ConsoleAppB6P6
             Inventory.Add(item);
 
             return true;
+        }
+
+        public override void ShowInventory()
+        {
+            Console.WriteLine($"{Name}: инвентарь (вес {InventoryWeight}/{CarryWeight})");
+            base.ShowInventory();
         }
 
         private void TakeAwayMoney(int money) =>
