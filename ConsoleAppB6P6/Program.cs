@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using System.Threading.Channels;
 
 namespace ConsoleAppB6P6
 {
@@ -22,8 +23,8 @@ namespace ConsoleAppB6P6
     {
         private Random _random = new Random();
         private List<Item> _items = new List<Item>();
-        private Player? _player;
-        private Trader? _trader;
+        private Player _player;
+        private Trader _trader;
 
         public Shop()
         {
@@ -42,15 +43,15 @@ namespace ConsoleAppB6P6
 
             while (isTrading)
             {
-                int money = _player.GetMoney();
-
                 Console.Clear();
                 Console.WriteLine($"Лавка \"Ломаная подкова\"" +
                     $"\n{CommandShowProducts}. Посмотреть товары" +
                     $"\n{CommandBuyProduct}. Купить товар" +
                     $"\n{CommandShowInventory}. Посмотреть инвентарь" +
-                    $"\n{CommandExit}. Покинуть лавку" +
-                    $"\n\nЗолота в наличии - {money}");
+                    $"\n{CommandExit}. Покинуть лавку");
+                Console.WriteLine();
+
+                _player.ShowPurse();
 
                 switch (Console.ReadLine())
                 {
@@ -59,11 +60,11 @@ namespace ConsoleAppB6P6
                         break;
 
                     case CommandBuyProduct:
-                        BuyProduct(money);
+                        BuyProduct();
                         break;
 
                     case CommandShowInventory:
-                        ShowInventory(money);
+                        ShowInventory();
                         break;
 
                     case CommandExit:
@@ -79,9 +80,8 @@ namespace ConsoleAppB6P6
         {
             string path = "items.json";
 
-            Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            _items = JsonSerializer.Deserialize<List<Item>>(fileStream);
-            fileStream.Close();
+            using Stream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                _items = JsonSerializer.Deserialize<List<Item>>(fileStream);
         }
 
         private void CreatePersons()
@@ -97,9 +97,6 @@ namespace ConsoleAppB6P6
 
         private void FillInventoryRandomItems()
         {
-            if (_trader == null)
-                return;
-
             int countItem = 20;
 
             for (int i = 0; i < countItem; i++)
@@ -119,48 +116,42 @@ namespace ConsoleAppB6P6
             _trader.ShowInventory();
         }
 
-        private void BuyProduct(int money)
+        private void BuyProduct()
         {
             ShowProducts();
-            Console.Write($"Какой товар хотите приобрести? (Золто {money}) " +
-                "\nВведите индекс товара: ");
+            Console.WriteLine($"Какой товар хотите приобрести?");
+            _player.ShowPurse();
+            Console.Write("Введите индекс товара: ");
 
-            bool isSelected = int.TryParse(Console.ReadLine(), out int index);
-
-            if (isSelected)
-            {
-                Item item = _trader.GetItem(index);
-
-                if (item == null)
-                    return;
-
-                if (_player.TryBuyItem(item))
-                {
-                    _trader.SaleItem(item);
-                    Console.WriteLine($"Вы приобрели: {item.Name} за {item.Price}");
-                }
-            }
-            else
+            if (int.TryParse(Console.ReadLine(), out int index) == false)
             {
                 Console.WriteLine($"{_trader.Name} вас не понимает...");
             }
+            else
+            {
+                if (_trader.TryGetItem(index, out Item item) == false)
+                    return;
+
+                if (_player.TryBuy(item))
+                {
+                    _trader.Sell(item);
+                    Console.WriteLine($"Вы приобрели: {item.Name} за {item.Price}");
+                }
+            }
         }
 
-        private void ShowInventory(int money)
+        private void ShowInventory()
         {
-            double inventoryWeidth = _player.GetInventoryWeight();
-
             Console.Clear();
-            Console.WriteLine($"{_player.Name}: инвентарь (вес {inventoryWeidth}/{_player.CarryWeight}), " +
-                $"золота в наличии - {money}");
+            Console.WriteLine($"{_player.Name}: инвентарь (вес {_player.InventoryWeight}/{_player.CarryWeight})");
+            _player.ShowPurse();
             _player.ShowInventory();
         }
     }
 
     public class Person
     {
-        protected int Money;
-        protected Inventory Inventory = new Inventory();
+        protected readonly Inventory Inventory = new Inventory();
 
         public Person(string name, int money)
         {
@@ -169,9 +160,10 @@ namespace ConsoleAppB6P6
         }
 
         public string Name { get; }
+        public int Money { get; protected set; }
 
         public void AddToInventory(Item item) =>
-            Inventory.AddItem(item);
+            Inventory.Add(item);
 
         public void ShowInventory() =>
             Inventory.ShowItems();
@@ -187,37 +179,38 @@ namespace ConsoleAppB6P6
 
         public double CarryWeight { get; }
 
-        public int GetMoney() =>
-            Money;
+        public void ShowPurse() =>
+            Console.WriteLine($"Золота в наличии - {Money}");
 
-        public double GetInventoryWeight() =>
+        public double InventoryWeight => 
             Inventory.TotalWeight;
 
-        public void TakeAwayMoney(int money) =>
-            Money -= money;
-
-        public bool TryBuyItem(Item item)
+        public bool TryBuy(Item item)
         {
-            if (CanAddItem(item) && CanPay(item))
+            if (CanAdd(item) == false || CanPay(item) == false)
             {
-                TakeAwayMoney(item.Price);
-                Inventory.AddItem(item);
-                return true;
+                Console.WriteLine("Вы не можете это купить");
+
+                return false;
             }
 
-            Console.WriteLine("Вы не можете это купить");
+            TakeAwayMoney(item.Price);
+            Inventory.Add(item);
 
-            return false;
+            return true;
         }
 
-        public bool CanAddItem(Item item)
+        private void TakeAwayMoney(int money) =>
+            Money -= money;
+
+        private bool CanAdd(Item item)
         {
             double totalWeigth = Inventory.TotalWeight + item.Weight;
 
             return totalWeigth <= CarryWeight;
         }
 
-        public bool CanPay(Item item) =>
+        private bool CanPay(Item item) =>
             Money >= item.Price;
     }
 
@@ -225,38 +218,31 @@ namespace ConsoleAppB6P6
     {
         public Trader(string name) : base(name, 0) { }
 
-        public void SaleItem(Item item)
+        public void Sell(Item item)
         {
-            if (item == null)
-                return;
-
             AddMoney(item.Price);
-            Inventory.RemoveItem(item);
+            Inventory.Remove(item);
         }
 
-        public void AddMoney(int money) =>
-            Money += money;
-
-        public Item GetItem(int index)
+        public bool TryGetItem(int index, out Item item)
         {
-            if (index < 0)
-                return null;
+            item = Inventory.GetItem(index);
 
-            if (index > Inventory.Count)
-                return null;
+            if (item == null)
+                return false;
 
-            return Inventory.GetItem(index);
+            return true;
         }
-    }
+ 
+        private void AddMoney(int money) =>
+            Money += money;
+   }
 
     public class Inventory
     {
         private List<Item> _items = new List<Item>();
 
-        public int Count
-        {
-            get => _items.Count;
-        }
+        public int Count { get => _items.Count; }
 
         public double TotalWeight
         {
@@ -271,10 +257,10 @@ namespace ConsoleAppB6P6
             }
         }
 
-        public void AddItem(Item item) =>
+        public void Add(Item item) =>
             _items.Add(item);
 
-        public void RemoveItem(Item item)
+        public void Remove(Item item)
         {
             if (item == null)
                 return;
@@ -288,15 +274,23 @@ namespace ConsoleAppB6P6
 
             for (int i = 0; i < _items.Count; i++)
             {
-                Console.Write($"{i,3} | ");
+                Console.Write($"{i,Width} | ");
                 _items[i].ShowInfo();
             }
 
             Console.WriteLine();
         }
 
-        public Item GetItem(int index) =>
-            _items[index];
+        public Item GetItem(int index)
+        {
+            if (index < 0)
+                return null;
+
+            if (index >= Count)
+                return null;
+
+            return _items[index];
+        }
     }
 
     public class Item
