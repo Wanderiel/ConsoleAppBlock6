@@ -126,15 +126,21 @@ namespace ConsoleAppB6P6
             if (int.TryParse(Console.ReadLine(), out int index) == false)
             {
                 Console.WriteLine($"{_trader.Name} вас не понимает...");
+
                 return;
             }
 
             if (_trader.TryGetItem(index, out Item item) == false)
+            {
+                Console.WriteLine($"{_trader.Name} говорит, что унего нет того, чего вы просите...");
+
                 return;
+            }    
 
             if (item.Price <= 0 || item.Weight <= 0) 
             {
                 Console.WriteLine($"С этим товаром что-то не так...");
+
                 return;
             }
 
