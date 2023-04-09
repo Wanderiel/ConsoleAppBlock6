@@ -7,9 +7,9 @@ namespace ConsoleAppB6P7
     {
         static void Main(string[] args)
         {
-            Depo depo = new Depo();
+            Depot depot = new Depot();
 
-            depo.Work();
+            depot.Work();
 
             Console.Clear();
             Console.WriteLine("Всего доброго!");
@@ -18,7 +18,7 @@ namespace ConsoleAppB6P7
         }
     }
 
-    public class Depo
+    public class Depot
     {
         private Random _random = new Random();
         private string _direction = string.Empty;
@@ -92,7 +92,7 @@ namespace ConsoleAppB6P7
         {
             if (string.IsNullOrEmpty(_direction) == false)
             {
-                Console.WriteLine("Направдление уже задано...");
+                Console.WriteLine("Направление уже задано...");
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace ConsoleAppB6P7
             for (int i = 0; i < tickets.Length; i++)
                 tickets[i] = _random.Next(100) + 1;
 
-            _currentTrain.TrySetPassengers(tickets);
+            _currentTrain.TrySetTickets(tickets);
         }
 
         private void FormTrain() =>
@@ -171,9 +171,9 @@ namespace ConsoleAppB6P7
     {
         private static int _ids = 1;
         private int _id;
-        private IState _state = new StateInDepo();
+        private ITrainState _state = new StandsDepoState();
         private string _direction = "Не задано";
-        private int[] _passengers;
+        private int[] _tickets;
         private TypeWagon[] _typeWagons;
         private int[] _wagons;
 
@@ -182,45 +182,45 @@ namespace ConsoleAppB6P7
             _id = _ids++;
             _typeWagons = typeWagons;
             _wagons = new int[typeWagons.Length];
-            _passengers = new int[typeWagons.Length];
+            _tickets = new int[typeWagons.Length];
         }
 
         public void TrySetDirection(string direction)
         {
-            if (TrySetState(new StateTicketSales()))
+            if (TrySetState(new TicketSalesState()))
             {
                 _direction = direction;
                 Console.WriteLine("Направление для поезда успешно задано, можно продавать билеты.");
             }
         }
 
-        public void TrySetPassengers(int[] passengers)
+        public void TrySetTickets(int[] tickets)
         {
-            for (int i = 0; i < passengers.Length; i++)
-                if (passengers[i] <= 0)
+            for (int i = 0; i < tickets.Length; i++)
+                if (tickets[i] <= 0)
                     return;
 
-            if ((_state is StateTicketSales) == false)
+            if ((_state is TicketSalesState) == false)
             {
                 Console.WriteLine("Продажа билетов закрыта.");
                 return;
             }
 
-            for (int i = 0;i < _passengers.Length;i++)
-                _passengers[i] += passengers[i];
+            for (int i = 0;i < _tickets.Length;i++)
+                _tickets[i] += tickets[i];
 
             Console.WriteLine($"Успешно продано билетов количестве:");
 
-            string places = CountToString(passengers);
+            string places = Format(tickets);
             Console.WriteLine(places);
         }
 
         public void TryFormTrain()
         {
-            if (TrySetState(new StateReadyToShip()))
+            if (TrySetState(new ReadyToShipState()))
             {
                 for (int i = 0; i < _wagons.Length; i++)
-                    _wagons[i] = _passengers[i] / _typeWagons[i].Seats + 1;
+                    _wagons[i] = _tickets[i] / _typeWagons[i].Seats + 1;
 
                 Console.WriteLine("Продажа билетов остановлена, команда персонала набрана. Поезд готов к отбытию.");
             }
@@ -228,7 +228,7 @@ namespace ConsoleAppB6P7
 
         public bool TrySend()
         {
-            if (TrySetState(new StateOnWay()) == false)
+            if (TrySetState(new OnWayState()) == false)
                 return false;
 
             Console.WriteLine($"Поезд успешно отправлен в путь по направению \"{_direction}\".");
@@ -242,14 +242,14 @@ namespace ConsoleAppB6P7
             const int Width2 = -19;
             const int Width3 = 16;
 
-            string places = CountToString(_passengers);
-            string wagons = CountToString(_wagons);
+            string places = Format(_tickets);
+            string wagons = Format(_wagons);
 
             Console.WriteLine($"| {_id,Width0} | {_direction,Width1} |" +
                 $" {places,Width2} | {wagons,Width2} | {_state.Name,Width3} |");
         }
 
-        private bool TrySetState(IState state)
+        private bool TrySetState(ITrainState state)
         {
             if (_state.CanNextStep(state) == false)
                 return false;
@@ -258,16 +258,16 @@ namespace ConsoleAppB6P7
             return true;
         }
 
-        private string CountToString(int[] counts)
+        private string Format(int[] array)
         {
             const int Width = 3;
 
-            string outString = string.Empty;
+            List<string> result = new List<string>();
 
             for (int i = 0; i < _typeWagons.Length; i++)
-                outString += $"[{_typeWagons[i].Name} - {counts[i],Width}] ";
+                result.Add($"[{_typeWagons[i].Name} - {array[i],Width}]");
 
-            return outString.Trim();
+            return string.Join(' ', result);
         }
     }
 
@@ -285,20 +285,20 @@ namespace ConsoleAppB6P7
 
     #region State Состояния поезда
 
-    public interface IState
+    public interface ITrainState
     {
-        public bool CanNextStep(IState state);
+        public bool CanNextStep(ITrainState state);
 
         public string Name { get; }
     }
 
-    public class StateInDepo : IState
+    public class StandsDepoState : ITrainState
     {
         public string Name => "В депо";
 
-        public bool CanNextStep(IState state)
+        public bool CanNextStep(ITrainState state)
         {
-            if (state is StateTicketSales)
+            if (state is TicketSalesState)
                 return true;
 
             Console.WriteLine("Поезд находится в депо...");
@@ -306,13 +306,13 @@ namespace ConsoleAppB6P7
         }
     }
 
-    public class StateTicketSales : IState
+    public class TicketSalesState : ITrainState
     {
         public string Name => "Продажа билетов";
 
-        public bool CanNextStep(IState state)
+        public bool CanNextStep(ITrainState state)
         {
-            if (state is StateReadyToShip)
+            if (state is ReadyToShipState)
                 return true;
 
             Console.WriteLine("Идёт продажа билетов...");
@@ -320,13 +320,13 @@ namespace ConsoleAppB6P7
         }
     }
 
-    public class StateReadyToShip : IState
+    public class ReadyToShipState : ITrainState
     {
         public string Name => "Готов к отправке";
 
-        public bool CanNextStep(IState state)
+        public bool CanNextStep(ITrainState state)
         {
-            if (state is StateOnWay)
+            if (state is OnWayState)
                 return true;
 
             Console.WriteLine("Ждём отправления поезда...");
@@ -334,11 +334,11 @@ namespace ConsoleAppB6P7
         }
     }
 
-    public class StateOnWay : IState
+    public class OnWayState : ITrainState
     {
         public string Name => "В пути";
 
-        public bool CanNextStep(IState state)
+        public bool CanNextStep(ITrainState state)
         {
             Console.WriteLine("Поезд уже в пути...");
             return false;
