@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+//Net v.6
 
 namespace ConsoleAppB6P7
 {
