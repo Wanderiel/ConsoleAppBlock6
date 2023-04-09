@@ -209,7 +209,7 @@ namespace ConsoleAppB6P7
             for (int i = 0;i < _tickets.Length;i++)
                 _tickets[i] += tickets[i];
 
-            Console.WriteLine($"Успешно продано билетов количестве:");
+            Console.WriteLine($"Успешно продано билетов в количестве:");
 
             string places = Format(tickets);
             Console.WriteLine(places);
