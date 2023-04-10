@@ -127,6 +127,7 @@ namespace ConsoleAppB6P7
             {
                 _trains.Add(_currentTrain);
                 _currentTrain = new Train(_typeWagons);
+                _direction = string.Empty;
             }
         }
 
@@ -171,18 +172,20 @@ namespace ConsoleAppB6P7
     {
         private static int _ids = 1;
         private int _id;
-        private ITrainState _state = new StandsDepoState();
-        private string _direction = "Не задано";
-        private int[] _tickets;
+        private ITrainState _state;
+        private string _direction;
         private TypeWagon[] _typeWagons;
+        private int[] _tickets;
         private int[] _wagons;
 
         public Train(TypeWagon[] typeWagons)
         {
             _id = _ids++;
+            _state = new StandsDepoState();
+            _direction = "Не задано";
             _typeWagons = typeWagons;
-            _wagons = new int[typeWagons.Length];
             _tickets = new int[typeWagons.Length];
+            _wagons = new int[typeWagons.Length];
         }
 
         public void TrySetDirection(string direction)
