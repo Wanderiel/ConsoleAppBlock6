@@ -8,16 +8,18 @@ namespace ConsoleAppB6P8
     {
         static void Main(string[] args)
         {
-            BaseCharacterBuilder_old builder = new BaseCharacterBuilder_old();
+            Master master = new Master();
 
-            Character player = builder.CreatePathfinder();
+            Character player = master.Create(new WarriorBuilder());
 
             player.ShowInfo();
+
+            Weapon longSword = new Weapon("Длинный меч", 3, new HitDice(1, 8));
 
             Console.ReadKey();
         }
     }
-    
+
     public static class AbilityType
     {
         public const string Strength = "Сила";
@@ -28,12 +30,98 @@ namespace ConsoleAppB6P8
         public const string Charisma = "Харизма";
     }
 
-    public static class DefensesType
+    public static class DefenсesType
     {
         public const string ArmorClass = "Класс Брони";
         public const string Fortitude = "Стойкость";
         public const string Reflex = "Рефлекс";
         public const string Will = "Воля";
+    }
+
+    public static class PowersType
+    {
+        public const string AtWill = "Не ограничено";
+        public const string Encounter = "На сцену";
+        public const string Daily = "На день";
+    }
+
+    public static class WeaponsTitle
+    {
+        public const string Dagger = "Кинжал";
+        public const string BatleAxe = "Боевой топор";
+        public const string LongSword = "Длинный меч";
+        public const string Warhammer = "Боевой молот";
+        public const string Falchion = "Фальшион";
+        public const string LongBow = "Длинный лук";
+    }
+
+    public static class DiceRoller
+    {
+        private static Random _random = new Random();
+
+        public static int RollDiceSum(HitDice hitDice)
+        {
+            if (CanRoll(hitDice) == false)
+                return 0;
+
+            if (hitDice.Count == 1)
+                return RollOne(hitDice.Sides);
+            else
+                return RollDices(hitDice).Sum();
+        }
+
+        public static int[] RollDices(HitDice hitDice)
+        {
+            if (CanRoll(hitDice) == false)
+                return new int[] { 0 };
+
+            int[] values = new int[hitDice.Count];
+
+            for (int i = 0; i < hitDice.Count; i++)
+                values[i] = RollOne(hitDice.Sides);
+
+            return values;
+        }
+
+        private static bool CanRoll(HitDice hitDice) //вынести в HitDice
+        {
+            if (hitDice == null)
+                return false;
+
+            if (hitDice.Count < 0)
+                return false;
+
+            return true;
+        }
+
+        private static int RollOne(int sides) =>
+            _random.Next(sides) + 1;
+    }
+
+    public class HitDice
+    {
+        public HitDice(int count, int sides)
+        {
+            Count = count;
+            Sides = sides;
+        }
+
+        public int Count { get; }
+        public int Sides { get; }
+    }
+
+    public class Weapon
+    {
+        public Weapon(string title, int proficiency, HitDice hitDice)
+        {
+            Title = title;
+            Proficiency = proficiency;
+            HitDice = hitDice;
+        }
+
+        public string Title { get; }
+        public int Proficiency { get; }
+        public HitDice HitDice { get; }
     }
 
     public class Ability
@@ -63,8 +151,6 @@ namespace ConsoleAppB6P8
 
         public AbilitySet(Dictionary<string, Ability> abilities)
         {
-            CheckAbilities(abilities);
-
             _abilities = new Dictionary<string, Ability>(abilities);
         }
 
@@ -80,27 +166,44 @@ namespace ConsoleAppB6P8
             foreach (string key in _abilities.Keys)
                 Console.WriteLine($"{key} - {_abilities[key].Value} ({_abilities[key].Modifier})");
         }
+    }
 
-        private void CheckAbilities(Dictionary<string, Ability> abilities)
+    public class Health
+    {
+        private int _maxHealth;
+        private int _health;
+
+        public Health(int rankValue, Ability constitution)
         {
-            string[] checkTitles = new string[] {
-                AbilityType.Strength,
-                AbilityType.Constitution,
-                AbilityType.Dexterity,
-                AbilityType.Intelligence,
-                AbilityType.Wisdom,
-                AbilityType.Charisma
-            };
+            _maxHealth = rankValue + constitution.Value;
+            _health = _maxHealth;
+        }
 
-            foreach (string title in checkTitles)
-                if (abilities.ContainsKey(title) == false)
-                    throw new Exception($"Нет нужной способности - {title}");
+        public int Value => _health;
+
+        public void GetHit(int damage)
+        {
+            if (damage <= 0)
+                return;
+
+            _health -= damage;
+        }
+
+        public void GetHeal(int heal)
+        {
+            if (heal <= 0)
+                return;
+
+            _health += heal;
+
+            if (_health > _maxHealth)
+                _health = _maxHealth;
         }
     }
 
-    public class Defense
+    public class Defenсe
     {
-        public Defense(string title, int value)
+        public Defenсe(string title, int value)
         {
             Title = title;
             Value = value;
@@ -110,52 +213,138 @@ namespace ConsoleAppB6P8
         public int Value { get; }
     }
 
-    public class DefenseSet
+    interface IPower
     {
-        private readonly Dictionary<string, Defense> _defenses;
+        bool CanApply();
 
-        public DefenseSet(Dictionary<string, Defense> defenses)
+        void Reset();
+    }
+
+    public class Power
+    {
+        protected Ability _ability;
+        protected string _defenceAbility;
+
+        public Power(string title, Ability ability, string defenceType)
         {
-            CheckDefenses(defenses);
-
-            _defenses = new Dictionary<string, Defense>(defenses);
+            Title = title;
+            _ability = ability;
+            _defenceAbility = defenceType;
         }
 
-        public Defense ArmorClass => _defenses[DefensesType.ArmorClass];
-        public Defense Fortitude => _defenses[DefensesType.Fortitude];
-        public Defense Reflex => _defenses[DefensesType.Reflex];
-        public Defense Will => _defenses[DefensesType.Will];
+        public string Title { get; }
 
-        public void ShowInfo()
+        public int GetAttack()
         {
-            foreach (var defense in _defenses)
-                Console.WriteLine($"{defense.Key}: {defense.Value.Value}");
-        }
+            HitDice attackDice = new HitDice(1, 20);
 
-        private void CheckDefenses(Dictionary<string, Defense> defenses)
-        {
-            string[] checkTitles = new string[] {
-                DefensesType.ArmorClass,
-                DefensesType.Fortitude,
-                DefensesType.Reflex,
-                DefensesType.Will,
-            };
-
-            foreach (string title in checkTitles)
-                if (defenses.ContainsKey(title) == false)
-                    throw new Exception($"Нет нужной защиты - {title}");
+            return DiceRoller.RollDiceSum(attackDice) + _ability.Modifier;
         }
     }
 
-    public abstract class BaseAbilitySetBuilder
+    public class AtWillPower : Power, IPower
     {
-        private Dice _dice = new Dice();
+        public AtWillPower(string title, Ability ability, string defenceType)
+            : base(title, ability, defenceType)
+        {
+        }
 
+        public bool CanApply() => true;
+
+        public int GetHit(HitDice hitDice) =>
+            DiceRoller.RollDices(hitDice).Sum();
+
+        public void Reset() { }
+    }
+
+    public class EncounterPower : Power, IPower
+    {
+        private bool _isReady;
+
+        public EncounterPower(string title, Ability ability, string defenceType)
+            : base(title, ability, defenceType)
+        {
+            _isReady = true;
+        }
+
+        public bool CanApply() => _isReady;
+
+        public int GetHit(HitDice hitDice)
+        {
+            int count = 2;
+            int damadeWeapon = 0;
+
+            for (int i = 0; i < count; i++)
+                damadeWeapon += DiceRoller.RollDiceSum(hitDice);
+
+            return damadeWeapon + _ability.Modifier;
+        }
+
+        public void Reset()
+        {
+            _isReady = true;
+        }
+    }
+
+    public class DailyPower : Power, IPower
+    {
+        private bool _isReady;
+
+        public DailyPower(string title, Ability ability, string defenceType)
+            : base(title, ability, defenceType)
+        {
+            _isReady = true;
+        }
+
+        public bool CanApply() => _isReady;
+
+        public int GetHit(HitDice hitDice)
+        {
+            int count = 3;
+            int damadeWeapon = 0;
+
+            for (int i = 0; i < count; i++)
+                damadeWeapon += DiceRoller.RollDiceSum(hitDice);
+
+            return damadeWeapon + _ability.Modifier;
+        }
+
+        public void Reset()
+        {
+            _isReady = true;
+        }
+    }
+
+    public class DefenсeSet
+    {
+        private readonly Dictionary<string, Defenсe> _defenсes;
+
+        public DefenсeSet(Dictionary<string, Defenсe> defenсes)
+        {
+            _defenсes = new Dictionary<string, Defenсe>(defenсes);
+        }
+
+        public Defenсe ArmorClass => _defenсes[DefenсesType.ArmorClass];
+        public Defenсe Fortitude => _defenсes[DefenсesType.Fortitude];
+        public Defenсe Reflex => _defenсes[DefenсesType.Reflex];
+        public Defenсe Will => _defenсes[DefenсesType.Will];
+
+        public void ShowInfo()
+        {
+            foreach (var defenсe in _defenсes)
+                Console.WriteLine($"{defenсe.Key}: {defenсe.Value.Value}");
+        }
+    }
+
+    public abstract class AbilitySetBuilder
+    {
         public AbilitySet GetAbilitySet()
         {
             Dictionary<string, Ability> abilities = new Dictionary<string, Ability>();
             bool isCorrect = false;
             string[] titles = GetAbilites();
+
+            CheckAbilities(titles);
 
             while (isCorrect == false)
             {
@@ -168,7 +357,7 @@ namespace ConsoleAppB6P8
 
                 AbilitySet abilitySet = new AbilitySet(abilities);
 
-                int sumModifiers = 
+                int sumModifiers =
                     abilitySet.Strength.Modifier +
                     abilitySet.Constitution.Modifier +
                     abilitySet.Dexterity.Modifier +
@@ -185,11 +374,27 @@ namespace ConsoleAppB6P8
 
         protected abstract string[] GetAbilites();
 
+        private void CheckAbilities(string[] titles)
+        {
+            string[] checkTitles = new string[] {
+                AbilityType.Strength,
+                AbilityType.Constitution,
+                AbilityType.Dexterity,
+                AbilityType.Intelligence,
+                AbilityType.Wisdom,
+                AbilityType.Charisma
+            };
+
+            foreach (string title in checkTitles)
+                if (Array.IndexOf(titles, title) == -1)
+                    throw new Exception($"Нет нужной способности - {title}");
+        }
+
         private int GenerateValue()
         {
-            int count = 4;
-            int faces = 6;
-            int[] results = _dice.RollFew(count, faces);
+            HitDice hitDice = new HitDice(4, 6);
+
+            int[] results = DiceRoller.RollDices(hitDice);
 
             return results.Sum() - results.Min();
         }
@@ -208,7 +413,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class WarriorAbilitySetBuilder : BaseAbilitySetBuilder
+    public class WarriorAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -223,7 +428,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class PathfinderAbilitySetBuilder : BaseAbilitySetBuilder
+    public class PathfinderAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -238,7 +443,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class RanegerAbilitySetBuilder : BaseAbilitySetBuilder
+    public class RanegerAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -253,7 +458,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class PaladinAbilitySetBuilder : BaseAbilitySetBuilder
+    public class PaladinAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -268,7 +473,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class RogueAbilitySetBuilder : BaseAbilitySetBuilder
+    public class RogueAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -283,7 +488,7 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class WizardAbilitySetBuilder : BaseAbilitySetBuilder
+    public class WizardAbilitySetBuilder : AbilitySetBuilder
     {
         protected override string[] GetAbilites()
         {
@@ -298,206 +503,157 @@ namespace ConsoleAppB6P8
         }
     }
 
-    public class DefenseBuilder
+    public class DefenсeBuilder
     {
-        public DefenseSet GetDefenceSet(
+        public DefenсeSet GetDefenceSet(
             AbilitySet abilitySet,
-            Dictionary<string, int> rankBonuses,
-            Dictionary<string, int> defenseBonuses
+            Dictionary<string, int> defenсeBonuses,
+            bool isHeavy
             )
         {
+            CheckDefenсes(defenсeBonuses);
+
             int baseValue = 10;
-            Dictionary<string, Defense> defenses = new Dictionary<string, Defense>();
-            Dictionary<string, int> defenseValeus = new Dictionary<string, int>()
+            Dictionary<string, Defenсe> defenсes = new Dictionary<string, Defenсe>();
+            Dictionary<string, int> defenсeValeus = new Dictionary<string, int>()
             {
-                { DefensesType.ArmorClass, Math.Max(abilitySet.Dexterity.Modifier, abilitySet.Intelligence.Modifier)},
-                { DefensesType.Fortitude, Math.Max(abilitySet.Strength.Modifier, abilitySet.Constitution.Modifier)},
-                { DefensesType.Reflex, Math.Max(abilitySet.Dexterity.Modifier, abilitySet.Intelligence.Modifier)},
-                { DefensesType.Will, Math.Max(abilitySet.Wisdom.Modifier, abilitySet.Charisma.Modifier)},
+                { DefenсesType.ArmorClass, Math.Max(abilitySet.Dexterity.Modifier, abilitySet.Intelligence.Modifier)},
+                { DefenсesType.Fortitude, Math.Max(abilitySet.Strength.Modifier, abilitySet.Constitution.Modifier)},
+                { DefenсesType.Reflex, Math.Max(abilitySet.Dexterity.Modifier, abilitySet.Intelligence.Modifier)},
+                { DefenсesType.Will, Math.Max(abilitySet.Wisdom.Modifier, abilitySet.Charisma.Modifier)},
             };
 
-            foreach (string key in defenseValeus.Keys)
+            if (isHeavy)
+                defenсeValeus[DefenсesType.ArmorClass] = 0;
+
+            foreach (string key in defenсeValeus.Keys)
             {
-                defenseValeus[key] += baseValue + rankBonuses[key] + defenseBonuses[key];
-                defenses.Add(key, new Defense(key, defenseValeus[key]));
+                defenсeValeus[key] += baseValue + defenсeBonuses[key];
+                defenсes.Add(key, new Defenсe(key, defenсeValeus[key]));
             }
 
-            return new DefenseSet(defenses);
+            return new DefenсeSet(defenсes);
+        }
+
+        private void CheckDefenсes(Dictionary<string, int> defenсes)
+        {
+            string[] checkTitles = new string[] {
+                DefenсesType.ArmorClass,
+                DefenсesType.Fortitude,
+                DefenсesType.Reflex,
+                DefenсesType.Will,
+            };
+
+            foreach (string title in checkTitles)
+                if (defenсes.ContainsKey(title) == false)
+                    throw new Exception($"Нет нужной защиты - {title}");
         }
     }
 
     public class Character
     {
-        private AbilitySet _abilitySet;
-        private DefenseSet _defenseSet;
-
-        public Character()
-        {
-        }
-
-        public Character(string name, AbilitySet abilitySet, DefenseSet defenseSet)
+        public Character(string name)
         {
             Name = name;
-            _abilitySet = abilitySet;
-            _defenseSet = defenseSet;
         }
 
         public string Name { get; }
+        public AbilitySet AbilitySet { get; private set; }
+        public DefenсeSet DefenсeSet { get; private set; }
+        public Health Health { get; private set; }
+
+        public void SetAbilities(AbilitySet abilitySet) =>
+            AbilitySet = abilitySet;
+
+        public void SetDefenсes(DefenсeSet defenсeSet) =>
+            DefenсeSet = defenсeSet;
+
+        public void SetHealth(int rankValue) =>
+            Health = new Health(rankValue, AbilitySet.Constitution);
 
         public void ShowInfo()
         {
             Console.WriteLine(Name);
-            _abilitySet.ShowInfo();
-            _defenseSet.ShowInfo();
+            Console.WriteLine($"Здоровье - {Health.Value}");
+            AbilitySet.ShowInfo();
+            DefenсeSet.ShowInfo();
         }
     }
 
-    public class Warrior : Character
+    public abstract class CharacterBuilder
     {
-        public Warrior(string name, AbilitySet abilitySet, DefenseSet defenseSet)
-            : base(name, abilitySet, defenseSet)
+        protected string _name;
+
+        public Character? Character { get; protected set; }
+
+        public void SetName()
         {
-        }
-    }
-
-    public class BaseCharacterBuilder_old
-    {
-        private List<Character> _characters = new List<Character>();
-        DefenseBuilder _defenseBuilder = new DefenseBuilder();
-        private AbilitySet _abilitySet;
-        private DefenseSet _defenseSet;
-
-        public Character CreateWarrior()
-        {
-            WarriorAbilitySetBuilder warriorAbilitySetBuilder = new WarriorAbilitySetBuilder();
-            Dictionary<string, int> defenseBonuses = new Dictionary<string, int>()
-            {
-                { DefensesType.ArmorClass, 6 },
-                { DefensesType.Fortitude, 0 },
-                { DefensesType.Reflex, 0 },
-                { DefensesType.Will, 0 },
-            };
-            Dictionary<string, int> rankBonuses = new Dictionary<string, int>()
-            {
-                { DefensesType.ArmorClass, 2 },
-                { DefensesType.Fortitude, 0 },
-                { DefensesType.Reflex, 0 },
-                { DefensesType.Will, 0 },
-            };
-
-            _abilitySet = warriorAbilitySetBuilder.GetAbilitySet();
-            _defenseSet = _defenseBuilder.GetDefenceSet(_abilitySet, defenseBonuses, rankBonuses);
-            
-            return new Character("Тор", _abilitySet, _defenseSet);
+            _name = "Njh";
         }
 
-        public Character CreatePathfinder()
-        {
-            PathfinderAbilitySetBuilder pathfinderAbilitySetBuilder = new PathfinderAbilitySetBuilder();
-            Dictionary<string, int> defenseBonuses = new Dictionary<string, int>()
-            {
-                { DefensesType.ArmorClass, 2 },
-                { DefensesType.Fortitude, 0 },
-                { DefensesType.Reflex, 0 },
-                { DefensesType.Will, 0 },
-            };
-            Dictionary<string, int> rankBonuses = new Dictionary<string, int>()
-            {
-                { DefensesType.ArmorClass, 0 },
-                { DefensesType.Fortitude, 1 },
-                { DefensesType.Reflex, 1 },
-                { DefensesType.Will, 0 },
-            };
-
-            _abilitySet = pathfinderAbilitySetBuilder.GetAbilitySet();
-            _defenseSet = _defenseBuilder.GetDefenceSet(_abilitySet, defenseBonuses, rankBonuses);
-
-            return new Character("Вандериэл", _abilitySet, _defenseSet);
-        }
-
-
-        public void SetCharacters()
-        {
-            //_characters.Add(new Warrior("Тор", new AbilitySet(16, 14, 13, 10, 13, 11)));
-        }
-
-        public void ShowCharacter()
-        {
-            foreach (Character character in _characters)
-                character.ShowInfo();
-        }
-
-        public Character ChooseHero()
-        {
-            Character hero = null;
-
-            ShowCharacter();
-
-            Console.Write("Номер гоероя? ");
-            string userInput = Console.ReadLine();
-
-            if (int.TryParse(userInput, out int index))
-            {
-                if (index < 0 || index >= _characters.Count)
-                {
-                    Console.WriteLine("горйо не найден");
-                    return null;
-                }
-
-                hero = _characters[index];
-            }
-
-            return hero;
-        }
-    }
-
-    public class Dice
-    {
-        Random _random = new Random();
-
-        public int RollOne(int faces) =>
-            _random.Next(faces) + 1;
-
-        public int[] RollFew(int count, int faces)
-        {
-            int[] values = new int[count];
-
-            for (int i = 0; i < count; i++)
-                values[i] = RollOne(faces);
-
-            return values;
-        }
-    }
-
-    abstract class BaseCharacterBuilder
-    {
-        public Character Character { get; private set; }
 
         public void CreateCharacter() =>
-            Character = new Character();
+            Character = new Character(_name);
 
         public abstract void SetAbilitySet();
 
-        public abstract int SetDefenseSet();
+        public abstract void SetDefenсeSet();
+
+        public abstract void SetHealth();
 
         public abstract void SetPowerSet();
     }
 
-    public class WarriorBuilder : BaseCharacterBuilder
+    public class Master
+    {
+        public Character Create(CharacterBuilder characterBuilder)
+        {
+            characterBuilder.SetName();
+            characterBuilder.CreateCharacter();
+            characterBuilder.SetAbilitySet();
+            characterBuilder.SetDefenсeSet();
+            characterBuilder.SetHealth();
+            characterBuilder.SetPowerSet();
+
+            return characterBuilder.Character;
+        }
+    }
+
+    public class WarriorBuilder : CharacterBuilder
     {
         public override void SetAbilitySet()
         {
-            throw new NotImplementedException();
+            WarriorAbilitySetBuilder warriorAbilitySetBuilder = new WarriorAbilitySetBuilder();
+            AbilitySet abilitySet = warriorAbilitySetBuilder.GetAbilitySet();
+            Character.SetAbilities(abilitySet);
         }
 
-        public override int SetDefenseSet()
+        public override void SetDefenсeSet()
         {
-            throw new NotImplementedException();
+            int armorDefenсe = 6;
+            int shieldDefenсe = 1;
+            bool isHeavy = true;
+            DefenсeBuilder defenсeBuilder = new DefenсeBuilder();
+            Dictionary<string, int> defenсeBonuses = new Dictionary<string, int>()
+            {
+                [DefenсesType.ArmorClass] = armorDefenсe + shieldDefenсe,
+                [DefenсesType.Fortitude] = 2,
+                [DefenсesType.Reflex] = 0 + shieldDefenсe,
+                [DefenсesType.Will] = 0,
+            };
+            DefenсeSet defenсeSet = defenсeBuilder.GetDefenceSet(Character.AbilitySet, defenсeBonuses, isHeavy);
+            Character.SetDefenсes(defenсeSet);
+        }
+
+        public override void SetHealth()
+        {
+            int rankValue = 15;
+            Character.SetHealth(rankValue);
         }
 
         public override void SetPowerSet()
         {
-            throw new NotImplementedException();
+            return;
         }
     }
 }
