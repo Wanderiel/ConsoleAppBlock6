@@ -2,10 +2,10 @@
 /*Net v.6
  *
  *Воин имеет увеличенный урон и большее здоровье
- *Плут имеет увеличенный шинс крита и увеличенный критический урон
- *Некромант возвращает себе часть здоровья при успешной атаке
  *Следыпыт сражается двумя оружиями в каждой руке, проводит две атаки
+ *Плут имеет увеличенный шанс крита и увеличенный критический урон
  *Чернокнижник при успешной атаке стакит магические метки, а при критическом попадании взрывает их
+ *Некромант возвращает себе часть здоровья при успешной атаке
  */
 
 namespace ConsoleAppB6P8
@@ -43,10 +43,10 @@ namespace ConsoleAppB6P8
             new List<Character>()
             {
                 new Warrior(),
-                new Necromancer(),
-                new Rogue(),
                 new Pathfinder(),
+                new Rogue(),
                 new Warlock(),
+                new Necromancer(),
             };
 
         private Character ChooseCharacter()
@@ -276,6 +276,20 @@ namespace ConsoleAppB6P8
             GetRandomDamageValue() + _damageBonus;
     }
 
+    public class Pathfinder : Character
+    {
+        public Pathfinder()
+            : base("Следопыт", new Health(90), 12, new Damage())
+        {
+        }
+
+        public override void AppyAttak(Character target)
+        {
+            Attak(target);
+            Attak(target);
+        }
+    }
+
     public class Rogue : Character
     {
         public Rogue()
@@ -285,6 +299,32 @@ namespace ConsoleAppB6P8
 
         protected override int GetCriticalDamage() =>
             GetMaxDamage() + GetRandomDamageValue();
+    }
+
+    public class Warlock : Character
+    {
+        private int _marks;
+
+        public Warlock()
+            : base("Чернокнижник", new Health(82), 11, new Damage(10))
+        {
+            _marks = 0;
+        }
+
+        protected override int GetCriticalDamage()
+        {
+            int damage = GetMaxDamage() + _marks;
+            _marks = 0;
+
+            return damage;
+        }
+
+        protected override int GetDamage()
+        {
+            _marks++;
+
+            return base.GetDamage();
+        }
     }
 
     public class Necromancer : Character
@@ -315,46 +355,6 @@ namespace ConsoleAppB6P8
                 Heal(heal);
                 Console.WriteLine($"{Name} восстанавливает здоровье: {heal}");
             }
-        }
-    }
-
-    public class Pathfinder : Character
-    {
-        public Pathfinder()
-            : base("Следопыт", new Health(90), 12, new Damage())
-        {
-        }
-
-        public override void AppyAttak(Character target)
-        {
-            Attak(target);
-            Attak(target);
-        }
-    }
-
-    public class Warlock : Character
-    {
-        private int _marks;
-
-        public Warlock()
-            : base("Чернокнижник", new Health(82), 11, new Damage(10))
-        {
-            _marks = 0;
-        }
-
-        protected override int GetCriticalDamage()
-        {
-            int damage = GetMaxDamage() + _marks;
-            _marks = 0;
-
-            return damage;
-        }
-
-        protected override int GetDamage()
-        {
-            _marks++;
-
-            return base.GetDamage();
         }
     }
 }
