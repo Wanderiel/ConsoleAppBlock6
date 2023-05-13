@@ -121,16 +121,6 @@ namespace ConsoleAppB6P9
         private int _revenue = 0;
         private int _count = 0;
 
-        private int GetReceiptAmount(List<Product> products)
-        {
-            int amount = 0;
-
-            foreach (Product product in products)
-                amount += product.Price;
-
-            return amount;
-        }
-
         public void Serve(Buyer buyer)
         {
             bool isBusy = true;
@@ -186,6 +176,16 @@ namespace ConsoleAppB6P9
 
         public void ShowRevenue() =>
             Console.WriteLine($"Выручка: {_revenue}");
+
+        private int GetReceiptAmount(List<Product> products)
+        {
+            int amount = 0;
+
+            foreach (Product product in products)
+                amount += product.Price;
+
+            return amount;
+        }
     }
 
     public class Buyer
@@ -238,10 +238,8 @@ namespace ConsoleAppB6P9
         private void AddToBasket(Product product) =>
             _basket.Add(product);
 
-        private void RemoveFromBasket()
-        {
+        private void RemoveFromBasket() => 
             _basket.RemoveProduct();
-        }
     }
 
     public class Basket
