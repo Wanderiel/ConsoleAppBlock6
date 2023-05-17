@@ -35,26 +35,31 @@ namespace ConsoleAppB6P10
     //    int GetCritical();
     //}
 
-    //public interface IWeapon
-    //{
-    //    public void Hit(Unit target);
+    public interface IWeapon
+    {
+        public void Hit(Unit target);
 
-    //    public void HitCritical(Unit target);
-    //}
+        public void HitCritical(Unit target);
+    }
+
+    public interface IAttack
+    {
+        bool GetAttackResult(Defences defences, out bool critical);
+    }
 
     #endregion
 
-    public class Config
-    {
-        private Config(int value) 
-        {
-            Value = value;
-        }
+    //public class Config
+    //{
+    //    private Config(int value)
+    //    {
+    //        Value = value;
+    //    }
 
-        public int Value { get; }
+    //    public int Value { get; }
 
-        public static Config CreateOne() => new Config(1);
-    }
+    //    public static Config CreateOne() => new Config(1);
+    //}
 
     public static class Randomize
     {
@@ -128,6 +133,74 @@ namespace ConsoleAppB6P10
         }
     }
 
+    public class Defences
+    {
+        private readonly int _defence;
+        private int _armor;
+
+        public Defences(int defence, int armor, int magicBarrier)
+        {
+            _defence = defence;
+            _armor = armor;
+            MagicBarrier = magicBarrier;
+        }
+
+        public int MagicBarrier { get; }
+
+        public int CalculateArmorClass(int ignoreArmor = 0) =>
+            Math.Clamp(_armor - ignoreArmor, 0, _armor) + _defence;
+    }
+
+    public class Attak : IAttack
+    {
+        private int _baseAttack = 20;
+        private int _criticalThreshold;
+
+        public Attak(int criticalThreshold = 20)
+        {
+            _criticalThreshold = criticalThreshold;
+        }
+
+        public bool GetAttackResult(Defences defences, out bool critical)
+        {
+            critical = false;
+            int currentAttack = Randomize.GetNumber(_baseAttack);
+            int armorClass = defences.CalculateArmorClass();
+
+            if (currentAttack == _baseAttack)
+            {
+                critical = true;
+
+                return true;
+            }
+
+            if (currentAttack < armorClass)
+                return false;
+
+            if (currentAttack >= _criticalThreshold)
+                critical = true;
+
+            return true;
+        }
+    }
+
+    public class AttackIgnoreArmor : IAttack
+    {
+        private Attak _attak;
+        private int _ignoreArmor;
+
+        public AttackIgnoreArmor(Attak attak, int ignoreArmor)
+        {
+            _attak = attak;
+            _ignoreArmor = ignoreArmor;
+        }
+
+        public bool GetAttackResult(Defences defences, out bool critical)
+        {
+            bool result = _attak.GetAttackResult(defences, out critical);
+        }
+    }
+
     public class Weapon
     {
         private readonly int _baseAttack;
@@ -152,14 +225,14 @@ namespace ConsoleAppB6P10
                 return;
             }
 
-            if (currentAttack < target.Armor)
+            if (currentAttack < target.Defences.CalculateArmorClass())
             {
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
 
                 return;
             }
 
-            if (currentAttack < _criticalThreshold)
+            if (currentAttack >= _criticalThreshold)
             {
                 HitCritical(target);
 
@@ -189,16 +262,19 @@ namespace ConsoleAppB6P10
         private readonly Health _health;
         private readonly Weapon _weapon;
 
-        public Unit(string name, int armor, Health health, Weapon weapon)
+        public Unit(string name, int armor, Health health, Defences defences, Weapon weapon)
         {
             Name = name;
-            Armor = armor;
+            //Armor = armor;
             _health = health;
+            Defences = defences;
             _weapon = weapon;
         }
 
         public string Name { get; }
-        public int Armor { get; }
+        //public int Armor { get; }
+        public Defences Defences { get; }
+
         public int Health => _health.CurrentValue;
 
         public void TakeDamage(int damage)
