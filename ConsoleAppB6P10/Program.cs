@@ -7,37 +7,60 @@ namespace ConsoleAppB6P10
     {
         static void Main(string[] args)
         {
-            Unit barbarian = new Unit(
-                "Варвар",
-                new Health(33),
-                new DefensiveStats(12, 1, 15),
-                new Weapon(
-                    new DamageTripleCritical(2, 12),
-                    new PhysicalAttak()
-                    )
-                );
+            //Unit barbarian = new Unit(
+            //    "Варвар",
+            //    33,
+            //    new DefenceStats(12, 1, 15),
+            //    new Weapon(
+            //        new DamageTripleCritical(2, 12),
+            //        new PhysicalAttack()
+            //        )
+            //    );
 
-            Unit warrior = new Unit(
-                "Воин",
-                new Health(35),
-                new DefensiveStats(10, 6, 12),
-                new Weapon(
-                    new Damage(1, 8),
-                    new PhysicalAttak(19)
-                    )
-                );
+            //Unit warrior = new Unit(
+            //    "Воин",
+            //    35,
+            //    new DefenceStats(10, 6, 12),
+            //    new Weapon(
+            //        new Damage(1, 8),
+            //        new PhysicalAttack(19)
+            //        )
+            //    );
 
-            while (barbarian.Health > 0 && warrior.Health > 0)
+            //while (barbarian.Health > 0 && warrior.Health > 0)
+            //{
+            //    Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
+
+            //    Thread.Sleep(2000);
+
+            //    barbarian.Attack(warrior);
+            //    warrior.Attack(barbarian);
+            //}
+
+            //Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
+
+            PlatoonFactory platoonFactory = new PlatoonFactory();
+
+            Platoon platoon1 = platoonFactory.Create("first", 10);
+            Platoon platoon2 = platoonFactory.Create("sec", 10);
+
+            while (platoon1.IsAlive && platoon2.IsAlive)
             {
-                Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
+                platoon2.TakeDamage(platoon1.GetNext());
+                platoon1.TakeDamage(platoon2.GetNext());
 
-                Thread.Sleep(2000);
+                platoon1.BuryDead();
+                platoon2.BuryDead();
 
-                barbarian.Attack(warrior);
-                warrior.Attack(barbarian);
+                Thread.Sleep(500);
             }
 
-            Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
+            if (platoon1.IsAlive == platoon2.IsAlive)
+                Console.WriteLine("Ничья");
+            else if (platoon1.IsAlive)
+                Console.WriteLine($"Победа за {platoon1.Name}");
+            else
+                Console.WriteLine($"Победа за {platoon2.Name}");
 
             Console.ReadKey();
         }
@@ -61,7 +84,7 @@ namespace ConsoleAppB6P10
 
     public interface IAttack
     {
-        bool GetResult(DefensiveStats defences, out bool isCritical);
+        bool HasHit(DefenceStats defences, out bool isCritical);
     }
 
     #endregion
@@ -109,31 +132,31 @@ namespace ConsoleAppB6P10
 
         List<IAttack> _attacks = new List<IAttack>()
         {
-            new PhysicalAttak(18, 1),
-            new PhysicalAttak(19),
-            new PhysicalAttak(ignoreArmor: 1),
-            new PhysicalAttak(),
+            new PhysicalAttack(18, 1),
+            new PhysicalAttack(19),
+            new PhysicalAttack(ignoreArmor: 1),
+            new PhysicalAttack(),
             new MagicAttack(),
         };
 
-        private List<DefensiveStats> _defensiveStats = new List<DefensiveStats>()
+        private List<DefenceStats> _defensiveStats = new List<DefenceStats>()
         {
-            new DefensiveStats(10 , 4, 15),
-            new DefensiveStats(10 , 5, 14),
-            new DefensiveStats(10 , 6, 13),
-            new DefensiveStats(11 , 3, 15),
-            new DefensiveStats(11 , 4, 14),
-            new DefensiveStats(12 , 1, 16),
-            new DefensiveStats(12 , 2, 15),
-            new DefensiveStats(12 , 3, 14),
-            new DefensiveStats(13 , 1, 15),
-            new DefensiveStats(13 , 2, 14),
+            new DefenceStats(10 , 4, 15),
+            new DefenceStats(10 , 5, 14),
+            new DefenceStats(10 , 6, 13),
+            new DefenceStats(11 , 3, 15),
+            new DefenceStats(11 , 4, 14),
+            new DefenceStats(12 , 1, 16),
+            new DefenceStats(12 , 2, 15),
+            new DefenceStats(12 , 3, 14),
+            new DefenceStats(13 , 1, 15),
+            new DefenceStats(13 , 2, 14),
         };
 
         public List<string> Names => new List<string>(_names);
         public List<Damage> Damages => new List<Damage>(_damages);
         public List<IAttack> Attacks => new List<IAttack>(_attacks);
-        public List<DefensiveStats> DefensiveStats => new List<DefensiveStats>(_defensiveStats);
+        public List<DefenceStats> DefensiveStats => new List<DefenceStats>(_defensiveStats);
     }
 
     public class Health
@@ -171,12 +194,12 @@ namespace ConsoleAppB6P10
         }
     }
 
-    public class DefensiveStats
+    public class DefenceStats
     {
         private readonly int _defence;
         private int _armor;
 
-        public DefensiveStats(int defence, int armor, int magicBarrier)
+        public DefenceStats(int defence, int armor, int magicBarrier)
         {
             _defence = defence;
             _armor = armor;
@@ -215,25 +238,27 @@ namespace ConsoleAppB6P10
         public override int GetCritical() => Max + base.GetCritical();
     }
 
-    public class PhysicalAttak : IAttack
+    public class PhysicalAttack : IAttack
     {
         private int _baseAttack = 20;
         private int _criticalThreshold;
         private int _ignoreArmor;
 
-        public PhysicalAttak(int criticalThreshold = 20, int ignoreArmor = 0)
+        public PhysicalAttack(int criticalThreshold = 20, int ignoreArmor = 0)
         {
             _criticalThreshold = criticalThreshold;
             _ignoreArmor = ignoreArmor;
         }
 
-        public bool GetResult(DefensiveStats defences, out bool isCritical)
+        public bool HasHit(DefenceStats defences, out bool isCritical)
         {
             isCritical = false;
             int currentAttack = Randomize.GetNumber(_baseAttack) + 1;
             int armorClass = defences.CalculateArmorClass(_ignoreArmor);
 
-            Console.WriteLine($" ({currentAttack})");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($" [физ. {currentAttack}]");
+            Console.ResetColor();
 
             if (currentAttack == _baseAttack)
             {
@@ -256,12 +281,14 @@ namespace ConsoleAppB6P10
     {
         private int _baseAttack = 20;
 
-        public bool GetResult(DefensiveStats defences, out bool isCritical)
+        public bool HasHit(DefenceStats defences, out bool isCritical)
         {
             isCritical = false;
             int currentAttack = Randomize.GetNumber(_baseAttack) + 1;
 
-            Console.WriteLine($" ({currentAttack})");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine($" [маг. {currentAttack}]");
+            Console.ResetColor();
 
             if (currentAttack == _baseAttack)
             {
@@ -280,17 +307,17 @@ namespace ConsoleAppB6P10
     public class Weapon
     {
         private readonly Damage _damage;
-        private readonly IAttack _atack;
+        private readonly IAttack _attack;
 
-        public Weapon(Damage damage, IAttack atack)
+        public Weapon(Damage damage, IAttack attack)
         {
             _damage = damage;
-            _atack = atack;
+            _attack = attack;
         }
 
         public void Attack(Unit target)
         {
-            if (_atack.GetResult(target.DefensiveStats, out bool isCritical))
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
                 if (isCritical)
                     HitCritical(target);
                 else
@@ -319,16 +346,16 @@ namespace ConsoleAppB6P10
         private readonly Health _health;
         private readonly Weapon _weapon;
 
-        public Unit(string name, Health health, DefensiveStats defensiveStats, Weapon weapon)
+        public Unit(string name, int health, DefenceStats defenceStats, Weapon weapon)
         {
             Name = name;
-            _health = health;
-            DefensiveStats = defensiveStats;
+            _health = new Health(health);
+            DefenceStats = defenceStats;
             _weapon = weapon;
         }
 
         public string Name { get; }
-        public DefensiveStats DefensiveStats { get; }
+        public DefenceStats DefenceStats { get; }
 
         public int Health => _health.CurrentValue;
 
@@ -340,7 +367,7 @@ namespace ConsoleAppB6P10
             Console.ResetColor();
         }
 
-        //public void TakeHeal(int heal) => _health.Heal(heal);
+        public void TakeHeal(int heal) => _health.Heal(heal);
 
         public void Attack(Unit target)
         {
@@ -350,36 +377,35 @@ namespace ConsoleAppB6P10
         }
     }
 
-    public class UnitsFabric
+    public class UnitsFactory
     {
         private Config _config = new Config();
 
         public Unit Create()
         {
-            string name = SetName();
-            Health health = SetHealth();
-            DefensiveStats defensiveStats = SetDefensiveStats();
-            Weapon weapon = SetWeapon();
+            string name = GetName();
+            int health = GetHealth();
+            DefenceStats defensiveStats = GetDefensiveStats();
+            Weapon weapon = GetWeapon();
 
             return new Unit(name, health, defensiveStats, weapon);
         }
 
 
-        private string SetName() => _config.Names[Randomize.GetNumber(_config.Names.Count)];
+        private string GetName() => _config.Names[Randomize.GetNumber(_config.Names.Count)];
 
-        private Health SetHealth()
+        private int GetHealth()
         {
-            int min = 50;
-            int max = 60;
-            int health = Randomize.GetNumber(min, max);
+            int min = 30;
+            int max = 35;
 
-            return new Health(health);
+            return Randomize.GetNumber(min, max);
         }
 
-        private DefensiveStats SetDefensiveStats() =>
+        private DefenceStats GetDefensiveStats() =>
             _config.DefensiveStats[Randomize.GetNumber(_config.DefensiveStats.Count)];
 
-        private Weapon SetWeapon()
+        private Weapon GetWeapon()
         {
             Damage damage = _config.Damages[Randomize.GetNumber(_config.Damages.Count)];
             IAttack attack = _config.Attacks[Randomize.GetNumber(_config.Attacks.Count)];
@@ -388,18 +414,54 @@ namespace ConsoleAppB6P10
         }
     }
 
-    public class Country
+    public class PlatoonFactory
+    {
+        private readonly UnitsFactory _unitsFactory = new UnitsFactory();
+
+        public Platoon Create(string name, int countUnit)
+        {
+            List<Unit> units = new List<Unit>();
+
+            for (int i = 0; i < countUnit; i++)
+                units.Add(_unitsFactory.Create());
+
+            return new Platoon(name, units);
+        }
+    }
+
+    public class Platoon
     {
         private List<Unit> _units;
 
-        public Country(string name)
+        public Platoon(string name, List<Unit> units)
         {
-            _units = new List<Unit>();
+            _units = units;
             Name = name;
         }
 
         public string Name { get; }
+        public bool IsAlive => _units.Count > 0;
 
-        public void Add(Unit unit) => _units.Add(unit);
+        public void TakeDamage(Unit unit)
+        {
+            Unit target = _units[Randomize.GetNumber(_units.Count)];
+            unit.Attack(target);
+        }
+
+        public Unit GetNext()
+        {
+            Unit unit = _units[0];
+            _units.Remove(unit);
+            _units.Add(unit);
+
+            return unit;
+        }
+
+        public void BuryDead()
+        {
+            for (int i = _units.Count - 1; i >= 0; i--)
+                if (_units[i].Health == 0)
+                    _units.RemoveAt(i);
+        }
     }
 }
