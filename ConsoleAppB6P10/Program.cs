@@ -328,20 +328,6 @@ namespace ConsoleAppB6P10
         }
     }
 
-    //public class Weapon
-    //{
-    //    private readonly Damage _damage;
-
-    //    public Weapon(Damage damage)
-    //    {
-    //        _damage = damage;
-    //    }
-
-    //    public int GetDamage() => _damage.Get();
-
-    //    public int GetCriticalDamage() => _damage.GetCritical();
-    //}
-
     public class Actor : IActor
     {
         private readonly Health _health;
