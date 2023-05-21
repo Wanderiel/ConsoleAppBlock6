@@ -1,5 +1,10 @@
 ﻿//GlobalUsing
 //Net v.6
+/*
+ * Воин быстро машет оружием, может провести дополнительную атаку, имеет бонус урона
+ * Варвар яростный в битве, при крите проводит дополнительную атаку
+ * Чемпион Торма (бог) при крите получает лечение от своего бога
+ */
 
 namespace ConsoleAppB6P10
 {
@@ -7,60 +12,28 @@ namespace ConsoleAppB6P10
     {
         static void Main(string[] args)
         {
-            //Unit barbarian = new Unit(
-            //    "Варвар",
-            //    33,
-            //    new DefenceStats(12, 1, 15),
-            //    new Weapon(
-            //        new DamageTripleCritical(2, 12),
-            //        new PhysicalAttack()
-            //        )
-            //    );
-
-            //Unit warrior = new Unit(
-            //    "Воин",
-            //    35,
-            //    new DefenceStats(10, 6, 12),
-            //    new Weapon(
-            //        new Damage(1, 8),
-            //        new PhysicalAttack(19)
-            //        )
-            //    );
-
-            //while (barbarian.Health > 0 && warrior.Health > 0)
-            //{
-            //    Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
-
-            //    Thread.Sleep(2000);
-
-            //    barbarian.Attack(warrior);
-            //    warrior.Attack(barbarian);
-            //}
-
-            //Console.WriteLine($"\n{barbarian.Name} [{barbarian.Health}] | {warrior.Name} [{warrior.Health}]");
-
             PlatoonFactory platoonFactory = new PlatoonFactory();
 
-            Platoon platoon1 = platoonFactory.Create("first", 10);
-            Platoon platoon2 = platoonFactory.Create("sec", 10);
+            Platoon platoon1 = platoonFactory.Create("First", 3);
+            Platoon platoon2 = platoonFactory.Create("Second", 3);
 
             while (platoon1.IsAlive && platoon2.IsAlive)
             {
                 platoon2.TakeDamage(platoon1.GetNext());
                 platoon1.TakeDamage(platoon2.GetNext());
 
-                platoon1.BuryDead();
                 platoon2.BuryDead();
+                platoon1.BuryDead();
 
                 Thread.Sleep(500);
             }
 
             if (platoon1.IsAlive == platoon2.IsAlive)
-                Console.WriteLine("Ничья");
+                Console.WriteLine("\nНичья");
             else if (platoon1.IsAlive)
-                Console.WriteLine($"Победа за {platoon1.Name}");
+                platoon1.PrintWin();
             else
-                Console.WriteLine($"Победа за {platoon2.Name}");
+                platoon2.PrintWin();
 
             Console.ReadKey();
         }
@@ -68,23 +41,23 @@ namespace ConsoleAppB6P10
 
     #region Interfaces
 
-    //public interface IDamage
-    //{
-    //    int Get();
-
-    //    int GetCritical();
-    //}
-
-    //public interface IWeapon
-    //{
-    //    public void Hit(Unit target);
-
-    //    public void HitCritical(Unit target);
-    //}
-
     public interface IAttack
     {
         bool HasHit(DefenceStats defences, out bool isCritical);
+    }
+
+    public interface IActor
+    {
+        string Name { get; }
+        int Health { get; }
+        DefenceStats DefenceStats { get; }
+
+        void TakeDamage(int damage);
+    }
+
+    public interface IUnit : IActor
+    {
+        void ExecuteAttack(IUnit target);
     }
 
     #endregion
@@ -121,42 +94,58 @@ namespace ConsoleAppB6P10
             "Меда",
         };
 
-        private List<Damage> _damages = new List<Damage>()
+        private List<Damage> _lowDamages = new List<Damage>()
         {
             new Damage(1, 6),
             new Damage(1, 8),
             new Damage(2, 4),
+            new DamageTripleCritical(1, 6),
+            new DamageTripleCritical(1, 8),
+            new DamageTripleCritical(2, 4),
+        };
+
+        private List<Damage> _highDamages = new List<Damage>()
+        {
             new Damage(1, 10),
             new Damage(2, 12),
+            new DamageTripleCritical(1, 10),
+            new DamageTripleCritical(2, 12),
         };
 
         List<IAttack> _attacks = new List<IAttack>()
         {
+            new PhysicalAttack(17),
             new PhysicalAttack(18, 1),
             new PhysicalAttack(19),
-            new PhysicalAttack(ignoreArmor: 1),
+            new PhysicalAttack(19, 1),
+            new PhysicalAttack(ignoreArmor: 2),
             new PhysicalAttack(),
-            new MagicAttack(),
         };
 
-        private List<DefenceStats> _defensiveStats = new List<DefenceStats>()
+        private List<DefenceStats> _lowArmor = new List<DefenceStats>()
         {
-            new DefenceStats(10 , 4, 15),
-            new DefenceStats(10 , 5, 14),
-            new DefenceStats(10 , 6, 13),
-            new DefenceStats(11 , 3, 15),
-            new DefenceStats(11 , 4, 14),
-            new DefenceStats(12 , 1, 16),
-            new DefenceStats(12 , 2, 15),
-            new DefenceStats(12 , 3, 14),
-            new DefenceStats(13 , 1, 15),
-            new DefenceStats(13 , 2, 14),
+            new DefenceStats(12 , 1, 15),
+            new DefenceStats(12 , 2, 14),
+            new DefenceStats(13 , 1, 14),
+            new DefenceStats(13 , 2, 13),
+        };
+
+        private List<DefenceStats> _heavyArmor = new List<DefenceStats>()
+        {
+            new DefenceStats(10 , 4, 14),
+            new DefenceStats(10 , 5, 13),
+            new DefenceStats(10 , 6, 12),
+            new DefenceStats(11 , 3, 14),
+            new DefenceStats(11 , 4, 13),
+            new DefenceStats(12 , 3, 13),
         };
 
         public List<string> Names => new List<string>(_names);
-        public List<Damage> Damages => new List<Damage>(_damages);
+        public List<Damage> LowDamages => new List<Damage>(_lowDamages);
+        public List<Damage> HighDamages => new List<Damage>(_highDamages);
         public List<IAttack> Attacks => new List<IAttack>(_attacks);
-        public List<DefenceStats> DefensiveStats => new List<DefenceStats>(_defensiveStats);
+        public List<DefenceStats> LowArmor => new List<DefenceStats>(_lowArmor);
+        public List<DefenceStats> HeavyArmor => new List<DefenceStats>(_heavyArmor);
     }
 
     public class Health
@@ -304,54 +293,57 @@ namespace ConsoleAppB6P10
         }
     }
 
-    public class Weapon
+    public class AttackSpeed
     {
-        private readonly Damage _damage;
-        private readonly IAttack _attack;
+        private int _attackSpeed;
+        private int _attackScale;
+        private int _attackScaleMax;
 
-        public Weapon(Damage damage, IAttack attack)
+        public AttackSpeed()
         {
-            _damage = damage;
-            _attack = attack;
+            _attackSpeed = Randomize.GetNumber(10, 30);
+            _attackScale = 0;
+            _attackScaleMax = 100;
         }
 
-        public void Attack(Unit target)
+        public bool HasAttacked()
         {
-            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
-                if (isCritical)
-                    HitCritical(target);
-                else
-                    Hit(target);
+            _attackScale += _attackSpeed;
 
-            Console.WriteLine($"Промах: {target.Name} не получает урона");
-        }
+            if (_attackScale >= _attackScaleMax)
+            {
+                _attackScale %= _attackScaleMax;
 
-        private void Hit(Unit target)
-        {
-            int damage = _damage.Get();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            target.TakeDamage(damage);
-        }
+                return true;
+            }
 
-        private void HitCritical(Unit target)
-        {
-            int damage = _damage.GetCritical();
-            Console.ForegroundColor = ConsoleColor.Red;
-            target.TakeDamage(damage);
+            return false;
         }
     }
 
-    public class Unit
+    public class Weapon
+    {
+        private readonly Damage _damage;
+
+        public Weapon(Damage damage)
+        {
+            _damage = damage;
+        }
+
+        public int GetDamage() => _damage.Get();
+
+        public int GetCriticalDamage() => _damage.GetCritical();
+    }
+
+    public class Actor : IActor
     {
         private readonly Health _health;
-        private readonly Weapon _weapon;
 
-        public Unit(string name, int health, DefenceStats defenceStats, Weapon weapon)
+        public Actor(string name, int health, DefenceStats defenceStats)
         {
             Name = name;
             _health = new Health(health);
             DefenceStats = defenceStats;
-            _weapon = weapon;
         }
 
         public string Name { get; }
@@ -363,36 +355,164 @@ namespace ConsoleAppB6P10
         {
             _health.TakeDamage(damage);
 
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{Name} получает урон {damage}");
             Console.ResetColor();
         }
 
-        public void TakeHeal(int heal) => _health.Heal(heal);
+        public void TakeHeal(int heal)
+        {
+            _health.Heal(heal);
 
-        public void Attack(Unit target)
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{Name} восстанавливает здоровье [{heal}]");
+            Console.ResetColor();
+        }
+    }
+
+    public class Warrior : Actor, IUnit
+    {
+        private readonly IAttack _attack;
+        private readonly Weapon _weapon;
+        private readonly AttackSpeed _attackSpeed;
+        private readonly int _damageBonus;
+
+        public Warrior(string name, int health, DefenceStats defenceStats, IAttack attack, Weapon weapon)
+            : base(name, health, defenceStats)
+        {
+            _attack = attack;
+            _weapon = weapon;
+            _attackSpeed = new AttackSpeed();
+            _damageBonus = 3;
+        }
+
+        public void ExecuteAttack(IUnit target)
+        {
+            Attack(target);
+
+            if (_attackSpeed.HasAttacked())
+                Attack(target);
+        }
+
+        private void Attack(IUnit target)
         {
             Console.Write($"{Name} атакует {target.Name}");
 
-            _weapon.Attack(target);
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+                if (isCritical)
+                    target.TakeDamage(_weapon.GetCriticalDamage() + _damageBonus);
+                else
+                    target.TakeDamage(_weapon.GetDamage() + _damageBonus);
+            else
+                Console.WriteLine($"Промах: {target.Name} не получает урона");
+        }
+    }
+
+    public class Barbarian : Actor, IUnit
+    {
+        private readonly IAttack _attack;
+        private readonly Weapon _weapon;
+
+        public Barbarian(string name, int health, DefenceStats defenceStats, IAttack attack, Weapon weapon)
+            : base(name, health, defenceStats)
+        {
+            _attack = attack;
+            _weapon = weapon;
+        }
+
+        public void ExecuteAttack(IUnit target) => Attack(target);
+
+        private void Attack(IUnit target)
+        {
+            Console.Write($"{Name} атакует {target.Name}");
+
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+                if (isCritical)
+                {
+                    target.TakeDamage(_weapon.GetCriticalDamage());
+
+                    Attack(target);
+                }
+                else
+                    target.TakeDamage(_weapon.GetDamage());
+            else
+                Console.WriteLine($"Промах: {target.Name} не получает урона");
+        }
+    }
+
+    public class СhampionTorm : Actor, IUnit
+    {
+        private readonly IAttack _attack;
+        private readonly Weapon _weapon;
+        private readonly int _heal;
+
+        public СhampionTorm(string name, int health, DefenceStats defenceStats, IAttack attack, Weapon weapon)
+            : base(name, health, defenceStats)
+        {
+            _attack = attack;
+            _weapon = weapon;
+            _heal = Randomize.GetNumber(5, 10);
+        }
+
+        public void ExecuteAttack(IUnit target) => Attack(target);
+
+        private void Attack(IUnit target)
+        {
+            Console.Write($"{Name} атакует {target.Name}");
+
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+                if (isCritical)
+                {
+                    target.TakeDamage(_weapon.GetCriticalDamage());
+
+                    TakeHeal(_heal);
+                }
+                else
+                    target.TakeDamage(_weapon.GetDamage());
+            else
+                Console.WriteLine($"Промах: {target.Name} не получает урона");
         }
     }
 
     public class UnitsFactory
     {
-        private Config _config = new Config();
+        private readonly Config _config = new Config();
 
-        public Unit Create()
+        public Warrior CreateWarrior()
         {
-            string name = GetName();
+            string name = "(Воин) " + GetName();
             int health = GetHealth();
-            DefenceStats defensiveStats = GetDefensiveStats();
+            DefenceStats defensiveStats = GetHeavyArmor();
+            IAttack attack = GetAttack();
             Weapon weapon = GetWeapon();
 
-            return new Unit(name, health, defensiveStats, weapon);
+            return new Warrior(name, health, defensiveStats, attack, weapon);
         }
 
+        public Barbarian CreateBarbarian()
+        {
+            string name = "(Варвар) " + GetName();
+            int health = GetHealth();
+            DefenceStats defensiveStats = GetLowArmor();
+            IAttack attack = GetAttack();
+            Weapon weapon = GetGreatWeapon();
 
-        private string GetName() => _config.Names[Randomize.GetNumber(_config.Names.Count)];
+            return new Barbarian(name, health, defensiveStats, attack, weapon);
+        }
+
+        public СhampionTorm CreateСhampionTorm()
+        {
+            string name = "(Чемпион Торма) " + GetName();
+            int health = GetHealth();
+            DefenceStats defensiveStats = GetHeavyArmor();
+            IAttack attack = new MagicAttack();
+            Weapon weapon = GetWeapon();
+
+            return new СhampionTorm(name, health, defensiveStats, attack, weapon);
+        }
+
+        private string GetName() =>
+            _config.Names[Randomize.GetNumber(_config.Names.Count)];
 
         private int GetHealth()
         {
@@ -402,38 +522,35 @@ namespace ConsoleAppB6P10
             return Randomize.GetNumber(min, max);
         }
 
-        private DefenceStats GetDefensiveStats() =>
-            _config.DefensiveStats[Randomize.GetNumber(_config.DefensiveStats.Count)];
+        private DefenceStats GetLowArmor() =>
+            _config.LowArmor[Randomize.GetNumber(_config.LowArmor.Count)];
+
+        private DefenceStats GetHeavyArmor() =>
+            _config.HeavyArmor[Randomize.GetNumber(_config.HeavyArmor.Count)];
+
+        private IAttack GetAttack() =>
+            _config.Attacks[Randomize.GetNumber(_config.Attacks.Count)];
 
         private Weapon GetWeapon()
         {
-            Damage damage = _config.Damages[Randomize.GetNumber(_config.Damages.Count)];
-            IAttack attack = _config.Attacks[Randomize.GetNumber(_config.Attacks.Count)];
+            Damage damage = _config.LowDamages[Randomize.GetNumber(_config.LowDamages.Count)];
 
-            return new Weapon(damage, attack);
+            return new Weapon(damage);
         }
-    }
 
-    public class PlatoonFactory
-    {
-        private readonly UnitsFactory _unitsFactory = new UnitsFactory();
-
-        public Platoon Create(string name, int countUnit)
+        private Weapon GetGreatWeapon()
         {
-            List<Unit> units = new List<Unit>();
+            Damage damage = _config.HighDamages[Randomize.GetNumber(_config.HighDamages.Count)];
 
-            for (int i = 0; i < countUnit; i++)
-                units.Add(_unitsFactory.Create());
-
-            return new Platoon(name, units);
+            return new Weapon(damage);
         }
     }
 
     public class Platoon
     {
-        private List<Unit> _units;
+        private List<IUnit> _units;
 
-        public Platoon(string name, List<Unit> units)
+        public Platoon(string name, List<IUnit> units)
         {
             _units = units;
             Name = name;
@@ -442,15 +559,16 @@ namespace ConsoleAppB6P10
         public string Name { get; }
         public bool IsAlive => _units.Count > 0;
 
-        public void TakeDamage(Unit unit)
+        public void TakeDamage(IUnit unit)
         {
-            Unit target = _units[Randomize.GetNumber(_units.Count)];
-            unit.Attack(target);
+            Console.Write($"[{Name}] ");
+            IUnit target = _units[Randomize.GetNumber(_units.Count)];
+            unit.ExecuteAttack(target);
         }
 
-        public Unit GetNext()
+        public IUnit GetNext()
         {
-            Unit unit = _units[0];
+            IUnit unit = _units[0];
             _units.Remove(unit);
             _units.Add(unit);
 
@@ -461,7 +579,48 @@ namespace ConsoleAppB6P10
         {
             for (int i = _units.Count - 1; i >= 0; i--)
                 if (_units[i].Health == 0)
+                {
+                    Console.Write($"[{Name}] Воин {_units[i].Name} мёртв. ");
+
                     _units.RemoveAt(i);
+
+                    Console.WriteLine($"[В отряде {_units.Count}]");
+                }
+        }
+
+        public void PrintWin()
+        {
+            Console.WriteLine($"\nПобеда за {Name}. В отряде осталось [{_units.Count}]");
+        }
+    }
+
+    public class PlatoonFactory
+    {
+        private readonly UnitsFactory _unitsFactory = new UnitsFactory();
+
+        public Platoon Create(string name, int countUnit)
+        {
+            List<IUnit> units = new List<IUnit>();
+
+            for (int i = 0; i < countUnit; i++)
+            {
+                units.Add(_unitsFactory.CreateWarrior());
+                units.Add(_unitsFactory.CreateBarbarian());
+                units.Add(_unitsFactory.CreateСhampionTorm());
+            }
+
+            Shufle(units);
+
+            return new Platoon(name, units);
+        }
+
+        private void Shufle(List<IUnit> units)
+        {
+            for (int i = 0; i < units.Count; i++)
+            {
+                int j = Randomize.GetNumber(units.Count);
+                (units[i], units[j]) = (units[j], units[i]);
+            }
         }
     }
 }
