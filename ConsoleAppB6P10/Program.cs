@@ -13,10 +13,10 @@ namespace ConsoleAppB6P10
         static void Main(string[] args)
         {
             PlatoonFactory platoonFactory = new PlatoonFactory();
-            int countUnit = 3;
+            int numberUnitsPerType = 3;
 
-            Platoon platoon1 = platoonFactory.Create("First", countUnit);
-            Platoon platoon2 = platoonFactory.Create("Second", countUnit);
+            Platoon platoon1 = platoonFactory.Create("First", numberUnitsPerType);
+            Platoon platoon2 = platoonFactory.Create("Second", numberUnitsPerType);
 
             Battleground battleground = new Battleground();
 
@@ -567,11 +567,11 @@ namespace ConsoleAppB6P10
     {
         private readonly UnitsFactory _unitsFactory = new UnitsFactory();
 
-        public Platoon Create(string name, int countUnit)
+        public Platoon Create(string name, int numberUnitsPerType)
         {
             List<IUnit> units = new List<IUnit>();
 
-            for (int i = 0; i < countUnit; i++)
+            for (int i = 0; i < numberUnitsPerType; i++)
             {
                 units.Add(_unitsFactory.CreateWarrior());
                 units.Add(_unitsFactory.CreateBarbarian());
