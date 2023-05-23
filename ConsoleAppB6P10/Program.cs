@@ -13,9 +13,10 @@ namespace ConsoleAppB6P10
         static void Main(string[] args)
         {
             PlatoonFactory platoonFactory = new PlatoonFactory();
+            int countUnit = 3;
 
-            Platoon platoon1 = platoonFactory.Create("First", 3);
-            Platoon platoon2 = platoonFactory.Create("Second", 3);
+            Platoon platoon1 = platoonFactory.Create("First", countUnit);
+            Platoon platoon2 = platoonFactory.Create("Second", countUnit);
 
             Battleground battleground = new Battleground();
 
@@ -327,7 +328,6 @@ namespace ConsoleAppB6P10
 
         public string Name { get; }
         public DefenceStats DefenceStats { get; }
-
         public int Health => _health.CurrentValue;
 
         public void TakeDamage(int damage)
@@ -559,10 +559,8 @@ namespace ConsoleAppB6P10
                 }
         }
 
-        public void PrintWin()
-        {
+        public void PrintWin() =>
             Console.WriteLine($"\nПобеда за {Name}. В отряде осталось [{_units.Count}]");
-        }
     }
 
     public class PlatoonFactory
