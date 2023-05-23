@@ -17,23 +17,9 @@ namespace ConsoleAppB6P10
             Platoon platoon1 = platoonFactory.Create("First", 3);
             Platoon platoon2 = platoonFactory.Create("Second", 3);
 
-            while (platoon1.IsAlive && platoon2.IsAlive)
-            {
-                platoon2.TakeDamage(platoon1.GetNext());
-                platoon1.TakeDamage(platoon2.GetNext());
+            Battleground battleground = new Battleground();
 
-                platoon2.BuryDead();
-                platoon1.BuryDead();
-
-                Thread.Sleep(500);
-            }
-
-            if (platoon1.IsAlive == platoon2.IsAlive)
-                Console.WriteLine("\nНичья");
-            else if (platoon1.IsAlive)
-                platoon1.PrintWin();
-            else
-                platoon2.PrintWin();
+            battleground.ConductBattle(platoon1, platoon2);
 
             Console.ReadKey();
         }
@@ -606,6 +592,30 @@ namespace ConsoleAppB6P10
                 int j = Randomize.GetNumber(units.Count);
                 (units[i], units[j]) = (units[j], units[i]);
             }
+        }
+    }
+
+    public class Battleground
+    {
+        public void ConductBattle(Platoon platoon1, Platoon platoon2)
+        {
+            while (platoon1.IsAlive && platoon2.IsAlive)
+            {
+                platoon2.TakeDamage(platoon1.GetNext());
+                platoon1.TakeDamage(platoon2.GetNext());
+
+                platoon2.BuryDead();
+                platoon1.BuryDead();
+
+                Thread.Sleep(500);
+            }
+
+            if (platoon1.IsAlive == platoon2.IsAlive)
+                Console.WriteLine("\nНичья");
+            else if (platoon1.IsAlive)
+                platoon1.PrintWin();
+            else
+                platoon2.PrintWin();
         }
     }
 }
