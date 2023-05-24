@@ -365,12 +365,16 @@ namespace ConsoleAppB6P10
             Console.Write($"{Name} атакует {target.Name}");
 
             if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+            {
                 if (isCritical)
                     target.TakeDamage(_damage.GetCritical() + _damageBonus);
                 else
                     target.TakeDamage(_damage.Get() + _damageBonus);
+            }
             else
+            {
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
+            }
 
             if (_attackSpeed.HasAttacked())
                 Attack(target);
@@ -394,6 +398,7 @@ namespace ConsoleAppB6P10
             Console.Write($"{Name} атакует {target.Name}");
 
             if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+            {
                 if (isCritical)
                 {
                     target.TakeDamage(_damage.GetCritical());
@@ -404,6 +409,7 @@ namespace ConsoleAppB6P10
                 {
                     target.TakeDamage(_damage.Get());
                 }
+            }
             else
             {
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
