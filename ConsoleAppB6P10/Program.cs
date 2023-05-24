@@ -45,20 +45,20 @@ namespace ConsoleAppB6P10
         string Name { get; }
         int Health { get; }
         DefenceStats DefenceStats { get; }
-
-        void TakeDamage(int damage);
     }
 
     public interface IUnit : IActor
     {
+        void TakeDamage(int damage);
+
         void Attack(IUnit target);
     }
 
     #endregion
 
-    public static class Randomize
+    public static class Random
     {
-        private static Random _random = new Random();
+        private static System.Random _random = new System.Random();
 
         public static int GetNumber(int max) =>
             _random.Next(max);
@@ -69,82 +69,65 @@ namespace ConsoleAppB6P10
 
     public class Config
     {
-        private List<string> _names;
-        private List<IDamage> _lowDamages;
-        private List<IDamage> _highDamages;
-        private List<IAttack> _attacks;
-        private List<DefenceStats> _lowArmor;
-        private List<DefenceStats> _heavyArmor;
-
-        public Config()
+        public string[] Names => new string[]
         {
-            _names = new List<string>()
-            {
-                "Клев",
-                "Мару",
-                "Сива",
-                "Лори",
-                "Ныть",
-                "Субо",
-                "Зерт",
-                "Утер",
-                "Фенк",
-                "Ярго",
-                "Хирд",
-                "Сува",
-                "Эрли",
-                "Чива",
-                "Меда",
-            };
-            _lowDamages = new List<IDamage>()
-            {
-                new Damage(1, 6),
-                new Damage(1, 8),
-                new Damage(2, 4),
-                new DamageTripleCritical(1, 6),
-                new DamageTripleCritical(1, 8),
-                new DamageTripleCritical(2, 4),
-            };
-            _highDamages = new List<IDamage>()
-            {
-                new Damage(1, 10),
-                new Damage(2, 12),
-                new DamageTripleCritical(1, 10),
-                new DamageTripleCritical(2, 12),
-            };
-            _attacks = new List<IAttack>()
-            {
-                new PhysicalAttack(17),
-                new PhysicalAttack(18, 1),
-                new PhysicalAttack(19),
-                new PhysicalAttack(19, 1),
-                new PhysicalAttack(ignoreArmor: 2),
-                new PhysicalAttack(),
-            };
-            _lowArmor = new List<DefenceStats>()
-            {
-                new DefenceStats(12 , 1, 15),
-                new DefenceStats(12 , 2, 14),
-                new DefenceStats(13 , 1, 14),
-                new DefenceStats(13 , 2, 13),
-            };
-            _heavyArmor = new List<DefenceStats>()
-            {
-                new DefenceStats(10 , 4, 14),
-                new DefenceStats(10 , 5, 13),
-                new DefenceStats(10 , 6, 12),
-                new DefenceStats(11 , 3, 14),
-                new DefenceStats(11 , 4, 13),
-                new DefenceStats(12 , 3, 13),
-            };
-        }
-
-        public List<string> Names => new List<string>(_names);
-        public List<IDamage> LowDamages => new List<IDamage>(_lowDamages);
-        public List<IDamage> HighDamages => new List<IDamage>(_highDamages);
-        public List<IAttack> Attacks => new List<IAttack>(_attacks);
-        public List<DefenceStats> LowArmor => new List<DefenceStats>(_lowArmor);
-        public List<DefenceStats> HeavyArmor => new List<DefenceStats>(_heavyArmor);
+            "Клев",
+            "Мару",
+            "Сива",
+            "Лори",
+            "Ныть",
+            "Субо",
+            "Зерт",
+            "Утер",
+            "Фенк",
+            "Ярго",
+            "Хирд",
+            "Сува",
+            "Эрли",
+            "Чива",
+            "Меда",
+        };
+        public IDamage[] LowDamages => new IDamage[]
+        {
+            new Damage(1, 6),
+            new Damage(1, 8),
+            new Damage(2, 4),
+            new TripleCritDamage(1, 6),
+            new TripleCritDamage(1, 8),
+            new TripleCritDamage(2, 4),
+        };
+        public IDamage[] HighDamages => new IDamage[]
+        {
+            new Damage(1, 10),
+            new Damage(2, 12),
+            new TripleCritDamage(1, 10),
+            new TripleCritDamage(2, 12),
+        };
+        public IAttack[] Attacks => new IAttack[]
+        {
+            new PhysicalAttack(17),
+            new PhysicalAttack(18, 1),
+            new PhysicalAttack(19),
+            new PhysicalAttack(19, 1),
+            new PhysicalAttack(ignoredArmor: 2),
+            new PhysicalAttack(),
+        };
+        public DefenceStats[] LowArmor => new DefenceStats[]
+        {
+            new DefenceStats(12, 1, 15),
+            new DefenceStats(12, 2, 14),
+            new DefenceStats(13, 1, 14),
+            new DefenceStats(13, 2, 13),
+        };
+        public DefenceStats[] HeavyArmor => new DefenceStats[]
+        {
+            new DefenceStats(10 , 4, 14),
+            new DefenceStats(10 , 5, 13),
+            new DefenceStats(10 , 6, 12),
+            new DefenceStats(11 , 3, 14),
+            new DefenceStats(11 , 4, 13),
+            new DefenceStats(12 , 3, 13),
+        };
     }
 
     public class Health
@@ -173,81 +156,83 @@ namespace ConsoleAppB6P10
             CurrentValue -= damage;
         }
 
-        public void Heal(int heal)
+        public void Heal(int value)
         {
-            if (heal <= 0)
+            if (value <= 0)
                 return;
 
-            CurrentValue += heal;
+            CurrentValue += value;
         }
     }
 
     public class DefenceStats
     {
-        private readonly int _defence;
+        private readonly int _base;
         private int _armor;
 
-        public DefenceStats(int defence, int armor, int magicBarrier)
+        public DefenceStats(int @base, int armor, int magicBarrier)
         {
-            _defence = defence;
+            _base = @base;
             _armor = armor;
             MagicBarrier = magicBarrier;
         }
 
         public int MagicBarrier { get; }
 
-        public int CalculateArmorClass(int ignoreArmor) =>
-            Math.Clamp(_armor - ignoreArmor, 0, _armor) + _defence;
+        public int CalculateArmorClass(int ignoredArmor) =>
+            Math.Clamp(_armor - ignoredArmor, 0, _armor) + _base;
     }
 
     public class Damage : IDamage
     {
+        private readonly int _min;
+        private readonly int _max;
+
         public Damage(int min, int max)
         {
-            Min = min;
-            Max = max;
+            _min = min;
+            _max = max;
         }
 
-        public int Min { get; }
+        public int Get() => Random.GetNumber(_min, _max);
 
-        public int Max { get; }
-
-        public int Get() => Randomize.GetNumber(Min, Max);
-
-        public virtual int GetCritical() => Max + Get();
+        public virtual int GetCritical() => _max + Get();
     }
 
-    public class DamageTripleCritical : Damage, IDamage
+    public class TripleCritDamage : Damage
     {
-        public DamageTripleCritical(int min, int max) : base(min, max)
+        private readonly int _max;
+
+        public TripleCritDamage(int min, int max) : base(min, max)
         {
+            _max = max;
         }
 
-        public override int GetCritical() => Max + base.GetCritical();
+        public override int GetCritical() => _max + base.GetCritical();
     }
 
     public class PhysicalAttack : IAttack
     {
-        private int _baseAttack = 20;
-        private int _criticalThreshold;
-        private int _ignoreArmor;
+        private readonly int _base = 20;
+        private readonly int _criticalThreshold;
+        private readonly int _ignoredArmor;
 
-        public PhysicalAttack(int criticalThreshold = 20, int ignoreArmor = 0)
+        public PhysicalAttack(int criticalThreshold = 20, int ignoredArmor = 0)
         {
             _criticalThreshold = criticalThreshold;
-            _ignoreArmor = ignoreArmor;
+            _ignoredArmor = ignoredArmor;
         }
 
         public bool HasHit(DefenceStats defences, out bool isCritical)
         {
-            int currentAttack = Randomize.GetNumber(_baseAttack) + 1;
-            int armorClass = defences.CalculateArmorClass(_ignoreArmor);
+            int currentAttack = Random.GetNumber(_base) + 1;
+            int armorClass = defences.CalculateArmorClass(_ignoredArmor);
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($" [физ. {currentAttack}]");
             Console.ResetColor();
 
-            if (currentAttack == _baseAttack)
+            if (currentAttack == _base)
             {
                 isCritical = true;
 
@@ -267,7 +252,7 @@ namespace ConsoleAppB6P10
         public bool HasHit(DefenceStats defences, out bool isCritical)
         {
             isCritical = false;
-            int current = Randomize.GetNumber(_base) + 1;
+            int current = Random.GetNumber(_base) + 1;
 
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine($" [маг. {current}]");
@@ -287,24 +272,24 @@ namespace ConsoleAppB6P10
     public class AttackSpeed
     {
         private int _speed;
-        private int _attackScale;
-        private int _attackScaleMax;
+        private int _scale;
+        private int _scaleMax;
 
-        public AttackSpeed()
+        public AttackSpeed(int min, int max)
         {
-            _speed = Randomize.GetNumber(10, 30);
-            _attackScale = 0;
-            _attackScaleMax = 100;
+            _speed = Random.GetNumber(min, max);
+            _scale = 0;
+            _scaleMax = 100;
         }
 
-        public bool HasAttacked()
+        public bool CanUseOptionalAttack()
         {
-            _attackScale += _speed;
+            _scale += _speed;
 
-            if (_attackScale < _attackScaleMax)
+            if (_scale < _scaleMax)
                 return false;
 
-            _attackScale %= _attackScaleMax;
+            _scale %= _scaleMax;
 
             return true;
         }
@@ -314,10 +299,10 @@ namespace ConsoleAppB6P10
     {
         private readonly Health _health;
 
-        public Actor(string name, int health, DefenceStats defenceStats)
+        public Actor(string name, int maxHealth, DefenceStats defenceStats)
         {
             Name = name;
-            _health = new Health(health);
+            _health = new Health(maxHealth);
             DefenceStats = defenceStats;
         }
 
@@ -334,12 +319,12 @@ namespace ConsoleAppB6P10
             Console.ResetColor();
         }
 
-        public void TakeHeal(int heal)
+        public void TakeHeal(int value)
         {
-            _health.Heal(heal);
+            _health.Heal(value);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{Name} восстанавливает здоровье [{heal}]");
+            Console.WriteLine($"{Name} восстанавливает здоровье [{value}]");
             Console.ResetColor();
         }
     }
@@ -356,7 +341,9 @@ namespace ConsoleAppB6P10
         {
             _attack = attack;
             _damage = damage;
-            _attackSpeed = new AttackSpeed();
+            int minSpeed = 10;
+            int maxSpeed = 30;
+            _attackSpeed = new AttackSpeed(minSpeed, maxSpeed);
             _damageBonus = 3;
         }
 
@@ -376,7 +363,7 @@ namespace ConsoleAppB6P10
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
             }
 
-            if (_attackSpeed.HasAttacked())
+            if (_attackSpeed.CanUseOptionalAttack())
                 Attack(target);
         }
     }
@@ -397,22 +384,20 @@ namespace ConsoleAppB6P10
         {
             Console.Write($"{Name} атакует {target.Name}");
 
-            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical) == false)
             {
-                if (isCritical)
-                {
-                    target.TakeDamage(_damage.GetCritical());
+                Console.WriteLine($"Промах: {target.Name} не получает урона");
+                return;
+            }
 
-                    Attack(target);
-                }
-                else
-                {
-                    target.TakeDamage(_damage.Get());
-                }
+            if (isCritical)
+            {
+                target.TakeDamage(_damage.GetCritical());
+                Attack(target);
             }
             else
             {
-                Console.WriteLine($"Промах: {target.Name} не получает урона");
+                target.TakeDamage(_damage.Get());
             }
         }
     }
@@ -421,41 +406,41 @@ namespace ConsoleAppB6P10
     {
         private readonly IAttack _attack;
         private readonly IDamage _damage;
-        private readonly int _heal;
+        private readonly int _healValue;
 
         public СhampionTorm(string name, int health, DefenceStats defenceStats, IAttack attack, IDamage damage)
             : base(name, health, defenceStats)
         {
             _attack = attack;
             _damage = damage;
-            _heal = Randomize.GetNumber(5, 10);
+            int min = 5;
+            int max = 10;
+            _healValue = Random.GetNumber(min, max);
         }
 
         public void Attack(IUnit target)
         {
             Console.Write($"{Name} атакует {target.Name}");
 
-            if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+            if (_attack.HasHit(target.DefenceStats, out bool isCritical) == false)
             {
-                if (isCritical)
-                {
-                    target.TakeDamage(_damage.GetCritical());
+                Console.WriteLine($"Промах: {target.Name} не получает урона");
+                return;
+            }
 
-                    TakeHeal(_heal);
-                }
-                else
-                {
-                    target.TakeDamage(_damage.Get());
-                }
+            if (isCritical)
+            {
+                target.TakeDamage(_damage.GetCritical());
+                TakeHeal(_healValue);
             }
             else
             {
-                Console.WriteLine($"Промах: {target.Name} не получает урона");
+                target.TakeDamage(_damage.Get());
             }
         }
     }
 
-    public class UnitsFactory
+    public class UnitFactory
     {
         private readonly Config _config = new Config();
 
@@ -493,39 +478,39 @@ namespace ConsoleAppB6P10
         }
 
         private string GetName() =>
-            _config.Names[Randomize.GetNumber(_config.Names.Count)];
+            _config.Names[Random.GetNumber(_config.Names.Length)];
 
         private int GetHealth()
         {
             int min = 30;
             int max = 35;
 
-            return Randomize.GetNumber(min, max);
+            return Random.GetNumber(min, max);
         }
 
         private DefenceStats GetLowArmor() =>
-            _config.LowArmor[Randomize.GetNumber(_config.LowArmor.Count)];
+            _config.LowArmor[Random.GetNumber(_config.LowArmor.Length)];
 
         private DefenceStats GetHeavyArmor() =>
-            _config.HeavyArmor[Randomize.GetNumber(_config.HeavyArmor.Count)];
+            _config.HeavyArmor[Random.GetNumber(_config.HeavyArmor.Length)];
 
         private IAttack GetAttack() =>
-            _config.Attacks[Randomize.GetNumber(_config.Attacks.Count)];
+            _config.Attacks[Random.GetNumber(_config.Attacks.Length)];
 
         private IDamage GetLowDamage() =>
-            _config.LowDamages[Randomize.GetNumber(_config.LowDamages.Count)];
+            _config.LowDamages[Random.GetNumber(_config.LowDamages.Length)];
 
         private IDamage GetHighDamage() =>
-            _config.HighDamages[Randomize.GetNumber(_config.HighDamages.Count)];
+            _config.HighDamages[Random.GetNumber(_config.HighDamages.Length)];
     }
 
     public class Platoon
     {
-        private List<IUnit> _units;
+        private readonly List<IUnit> _units;
 
-        public Platoon(string name, List<IUnit> units)
+        public Platoon(string name, IEnumerable<IUnit> units)
         {
-            _units = units;
+            _units = new List<IUnit>(units);
             Name = name;
         }
 
@@ -535,7 +520,7 @@ namespace ConsoleAppB6P10
         public void TakeDamage(IUnit unit)
         {
             Console.Write($"[{Name}] ");
-            IUnit target = _units[Randomize.GetNumber(_units.Count)];
+            IUnit target = _units[Random.GetNumber(_units.Count)];
             unit.Attack(target);
         }
 
@@ -551,14 +536,14 @@ namespace ConsoleAppB6P10
         public void BuryDead()
         {
             for (int i = _units.Count - 1; i >= 0; i--)
+            {
                 if (_units[i].Health == 0)
                 {
                     Console.Write($"[{Name}] Воин {_units[i].Name} мёртв. ");
-
                     _units.RemoveAt(i);
-
                     Console.WriteLine($"[В отряде {_units.Count}]");
                 }
+            }
         }
 
         public void PrintWin() =>
@@ -567,7 +552,7 @@ namespace ConsoleAppB6P10
 
     public class PlatoonFactory
     {
-        private readonly UnitsFactory _unitsFactory = new UnitsFactory();
+        private readonly UnitFactory _unitsFactory = new UnitFactory();
 
         public Platoon Create(string name, int numberUnitsPerType)
         {
@@ -589,7 +574,7 @@ namespace ConsoleAppB6P10
         {
             for (int i = 0; i < units.Count; i++)
             {
-                int j = Randomize.GetNumber(units.Count);
+                int j = Random.GetNumber(units.Count);
                 (units[i], units[j]) = (units[j], units[i]);
             }
         }
@@ -606,8 +591,6 @@ namespace ConsoleAppB6P10
 
                 platoon2.BuryDead();
                 platoon1.BuryDead();
-
-                Thread.Sleep(500);
             }
 
             if (platoon1.IsAlive == platoon2.IsAlive)
