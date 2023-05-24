@@ -69,70 +69,75 @@ namespace ConsoleAppB6P10
 
     public class Config
     {
-        private List<string> _names = new List<string>()
-        {
-            "Клев",
-            "Мару",
-            "Сива",
-            "Лори",
-            "Ныть",
-            "Субо",
-            "Зерт",
-            "Утер",
-            "Фенк",
-            "Ярго",
-            "Хирд",
-            "Сува",
-            "Эрли",
-            "Чива",
-            "Меда",
-        };
+        private List<string> _names;
+        private List<IDamage> _lowDamages;
+        private List<IDamage> _highDamages;
+        private List<IAttack> _attacks;
+        private List<DefenceStats> _lowArmor;
+        private List<DefenceStats> _heavyArmor;
 
-        private List<IDamage> _lowDamages = new List<IDamage>()
+        public Config()
         {
-            new Damage(1, 6),
-            new Damage(1, 8),
-            new Damage(2, 4),
-            new DamageTripleCritical(1, 6),
-            new DamageTripleCritical(1, 8),
-            new DamageTripleCritical(2, 4),
-        };
-
-        private List<IDamage> _highDamages = new List<IDamage>()
-        {
-            new Damage(1, 10),
-            new Damage(2, 12),
-            new DamageTripleCritical(1, 10),
-            new DamageTripleCritical(2, 12),
-        };
-
-        List<IAttack> _attacks = new List<IAttack>()
-        {
-            new PhysicalAttack(17),
-            new PhysicalAttack(18, 1),
-            new PhysicalAttack(19),
-            new PhysicalAttack(19, 1),
-            new PhysicalAttack(ignoreArmor: 2),
-            new PhysicalAttack(),
-        };
-
-        private List<DefenceStats> _lowArmor = new List<DefenceStats>()
-        {
-            new DefenceStats(12 , 1, 15),
-            new DefenceStats(12 , 2, 14),
-            new DefenceStats(13 , 1, 14),
-            new DefenceStats(13 , 2, 13),
-        };
-
-        private List<DefenceStats> _heavyArmor = new List<DefenceStats>()
-        {
-            new DefenceStats(10 , 4, 14),
-            new DefenceStats(10 , 5, 13),
-            new DefenceStats(10 , 6, 12),
-            new DefenceStats(11 , 3, 14),
-            new DefenceStats(11 , 4, 13),
-            new DefenceStats(12 , 3, 13),
-        };
+            _names = new List<string>()
+            {
+                "Клев",
+                "Мару",
+                "Сива",
+                "Лори",
+                "Ныть",
+                "Субо",
+                "Зерт",
+                "Утер",
+                "Фенк",
+                "Ярго",
+                "Хирд",
+                "Сува",
+                "Эрли",
+                "Чива",
+                "Меда",
+            };
+            _lowDamages = new List<IDamage>()
+            {
+                new Damage(1, 6),
+                new Damage(1, 8),
+                new Damage(2, 4),
+                new DamageTripleCritical(1, 6),
+                new DamageTripleCritical(1, 8),
+                new DamageTripleCritical(2, 4),
+            };
+            _highDamages = new List<IDamage>()
+            {
+                new Damage(1, 10),
+                new Damage(2, 12),
+                new DamageTripleCritical(1, 10),
+                new DamageTripleCritical(2, 12),
+            };
+            _attacks = new List<IAttack>()
+            {
+                new PhysicalAttack(17),
+                new PhysicalAttack(18, 1),
+                new PhysicalAttack(19),
+                new PhysicalAttack(19, 1),
+                new PhysicalAttack(ignoreArmor: 2),
+                new PhysicalAttack(),
+            };
+            _lowArmor = new List<DefenceStats>()
+            {
+                new DefenceStats(12 , 1, 15),
+                new DefenceStats(12 , 2, 14),
+                new DefenceStats(13 , 1, 14),
+                new DefenceStats(13 , 2, 13),
+            };
+            _heavyArmor = new List<DefenceStats>()
+            {
+                new DefenceStats(10 , 4, 14),
+                new DefenceStats(10 , 5, 13),
+                new DefenceStats(10 , 6, 12),
+                new DefenceStats(11 , 3, 14),
+                new DefenceStats(11 , 4, 13),
+                new DefenceStats(12 , 3, 13),
+            };
+        }
 
         public List<string> Names => new List<string>(_names);
         public List<IDamage> LowDamages => new List<IDamage>(_lowDamages);
@@ -235,7 +240,6 @@ namespace ConsoleAppB6P10
 
         public bool HasHit(DefenceStats defences, out bool isCritical)
         {
-            isCritical = false;
             int currentAttack = Randomize.GetNumber(_baseAttack) + 1;
             int armorClass = defences.CalculateArmorClass(_ignoreArmor);
 
@@ -250,68 +254,59 @@ namespace ConsoleAppB6P10
                 return true;
             }
 
-            if (currentAttack < armorClass)
-                return false;
+            isCritical = currentAttack >= _criticalThreshold;
 
-            if (currentAttack >= _criticalThreshold)
-                isCritical = true;
-
-            return true;
+            return currentAttack >= armorClass;
         }
     }
 
     public class MagicAttack : IAttack
     {
-        private int _baseAttack = 20;
+        private int _base = 20;
 
         public bool HasHit(DefenceStats defences, out bool isCritical)
         {
             isCritical = false;
-            int currentAttack = Randomize.GetNumber(_baseAttack) + 1;
+            int current = Randomize.GetNumber(_base) + 1;
 
             Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine($" [маг. {currentAttack}]");
+            Console.WriteLine($" [маг. {current}]");
             Console.ResetColor();
 
-            if (currentAttack == _baseAttack)
+            if (current == _base)
             {
                 isCritical = true;
 
                 return true;
             }
 
-            if (currentAttack < defences.MagicBarrier)
-                return false;
-
-            return true;
+            return current >= defences.MagicBarrier;
         }
     }
 
     public class AttackSpeed
     {
-        private int _attackSpeed;
+        private int _speed;
         private int _attackScale;
         private int _attackScaleMax;
 
         public AttackSpeed()
         {
-            _attackSpeed = Randomize.GetNumber(10, 30);
+            _speed = Randomize.GetNumber(10, 30);
             _attackScale = 0;
             _attackScaleMax = 100;
         }
 
         public bool HasAttacked()
         {
-            _attackScale += _attackSpeed;
+            _attackScale += _speed;
 
-            if (_attackScale >= _attackScaleMax)
-            {
-                _attackScale %= _attackScaleMax;
+            if (_attackScale < _attackScaleMax)
+                return false;
 
-                return true;
-            }
+            _attackScale %= _attackScaleMax;
 
-            return false;
+            return true;
         }
     }
 
@@ -406,9 +401,13 @@ namespace ConsoleAppB6P10
                     Attack(target);
                 }
                 else
+                {
                     target.TakeDamage(_damage.Get());
+                }
             else
+            {
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
+            }
         }
     }
 
@@ -431,6 +430,7 @@ namespace ConsoleAppB6P10
             Console.Write($"{Name} атакует {target.Name}");
 
             if (_attack.HasHit(target.DefenceStats, out bool isCritical))
+            {
                 if (isCritical)
                 {
                     target.TakeDamage(_damage.GetCritical());
@@ -438,9 +438,14 @@ namespace ConsoleAppB6P10
                     TakeHeal(_heal);
                 }
                 else
+                {
                     target.TakeDamage(_damage.Get());
+                }
+            }
             else
+            {
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
+            }
         }
     }
 
