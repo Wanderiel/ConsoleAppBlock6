@@ -51,7 +51,7 @@ namespace ConsoleAppB6P10
 
     public interface IUnit : IActor
     {
-        void ExecuteAttack(IUnit target);
+        void Attack(IUnit target);
     }
 
     #endregion
@@ -365,15 +365,7 @@ namespace ConsoleAppB6P10
             _damageBonus = 3;
         }
 
-        public void ExecuteAttack(IUnit target)
-        {
-            Attack(target);
-
-            if (_attackSpeed.HasAttacked())
-                Attack(target);
-        }
-
-        private void Attack(IUnit target)
+        public void Attack(IUnit target)
         {
             Console.Write($"{Name} атакует {target.Name}");
 
@@ -384,6 +376,9 @@ namespace ConsoleAppB6P10
                     target.TakeDamage(_damage.Get() + _damageBonus);
             else
                 Console.WriteLine($"Промах: {target.Name} не получает урона");
+
+            if (_attackSpeed.HasAttacked())
+                Attack(target);
         }
     }
 
@@ -399,9 +394,7 @@ namespace ConsoleAppB6P10
             _damage = damage;
         }
 
-        public void ExecuteAttack(IUnit target) => Attack(target);
-
-        private void Attack(IUnit target)
+        public void Attack(IUnit target)
         {
             Console.Write($"{Name} атакует {target.Name}");
 
@@ -433,9 +426,7 @@ namespace ConsoleAppB6P10
             _heal = Randomize.GetNumber(5, 10);
         }
 
-        public void ExecuteAttack(IUnit target) => Attack(target);
-
-        private void Attack(IUnit target)
+        public void Attack(IUnit target)
         {
             Console.Write($"{Name} атакует {target.Name}");
 
@@ -534,7 +525,7 @@ namespace ConsoleAppB6P10
         {
             Console.Write($"[{Name}] ");
             IUnit target = _units[Randomize.GetNumber(_units.Count)];
-            unit.ExecuteAttack(target);
+            unit.Attack(target);
         }
 
         public IUnit GetNext()
