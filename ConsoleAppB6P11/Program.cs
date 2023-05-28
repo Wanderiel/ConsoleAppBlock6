@@ -55,6 +55,7 @@ namespace ConsoleAppB6P11
         {
             const ConsoleKey CommandAddFish = ConsoleKey.Insert;
             const ConsoleKey CommandRemoveFish = ConsoleKey.Delete;
+            const ConsoleKey CommandClear = ConsoleKey.PageUp;
             const ConsoleKey CommandExit = ConsoleKey.Escape;
 
             bool isWork = true;
@@ -65,6 +66,7 @@ namespace ConsoleAppB6P11
                 Console.Clear();
                 Console.WriteLine($"[{CommandAddFish}] - добавить рыбку");
                 Console.WriteLine($"[{CommandRemoveFish}] - удалить рыбку");
+                Console.WriteLine($"[{CommandClear}] - очистить аквариум");
                 Console.WriteLine($"[{CommandExit}] - уйти от аквариума\n");
 
                 ShowInfo();
@@ -81,6 +83,10 @@ namespace ConsoleAppB6P11
 
                         case ConsoleKey.Delete:
                             Remove();
+                            break;
+
+                        case ConsoleKey.PageUp:
+                            Clear();
                             break;
 
                         case ConsoleKey.Escape:
@@ -119,6 +125,8 @@ namespace ConsoleAppB6P11
 
             _fish.RemoveAt(index - 1);
         }
+
+        private void Clear() => _fish.Clear();
 
         private void GrowOldFish()
         {
