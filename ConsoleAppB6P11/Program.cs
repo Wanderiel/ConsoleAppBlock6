@@ -7,8 +7,8 @@ namespace ConsoleAppB6P11
     {
         static void Main(string[] args)
         {
-
-            Aquarium aquarium = new Aquarium(20);
+            int size = 15;
+            Aquarium aquarium = new Aquarium(size);
             aquarium.Work();
 
             Console.WriteLine("\nИгра окончена.");
@@ -47,7 +47,7 @@ namespace ConsoleAppB6P11
             _size = size;
             _fishGenerator = new FishGenerator();
             _fish = new List<IFish>();
-            _agingRate = 0.1;
+            _agingRate = 0.002;
             _toxicity = 0;
         }
 
@@ -61,7 +61,7 @@ namespace ConsoleAppB6P11
             const ConsoleKey CommandExit = ConsoleKey.Escape;
 
             bool isWork = true;
-            int waitingTime = 500;
+            int waitingTime = 5;
 
             while (isWork)
             {
