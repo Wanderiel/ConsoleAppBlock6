@@ -20,6 +20,8 @@ namespace ConsoleAppB6P11
     {
         IFish Clone();
 
+        void GrowOld(double age);
+
         void ShowInfo();
     }
 
@@ -132,7 +134,7 @@ namespace ConsoleAppB6P11
         {
             CalculateToxicity();
 
-            foreach (Fish fish in _fish)
+            foreach (IFish fish in _fish)
                 fish.GrowOld(_agingRate * (_toxicity + 1));
         }
 
