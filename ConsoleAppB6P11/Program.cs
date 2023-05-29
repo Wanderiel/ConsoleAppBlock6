@@ -116,6 +116,9 @@ namespace ConsoleAppB6P11
 
         private void Remove()
         {
+            if (_fish.Count == 0)
+                return;
+
             Console.WriteLine("Введите номер рыбки для удаления из аквариума");
             string userInput = Console.ReadLine();
 
