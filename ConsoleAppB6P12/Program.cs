@@ -34,7 +34,12 @@ namespace ConsoleAppB6P12
 
         public void MakeSound() => Console.WriteLine(_voice);
 
-        public void ShowInfo() => Console.WriteLine($"{Name} | {Gender}");
+        public void ShowInfo()
+        {
+            const int Width = -15;
+
+            Console.WriteLine($"{Name,Width} | {Gender}");
+        }
     }
 
     public class Aviary
@@ -61,10 +66,18 @@ namespace ConsoleAppB6P12
 
         public void ShowInfo()
         {
-            foreach (var animal in _animals)
+            if (_animals.Count == 0)
+                return;
+
+            Console.Clear();
+
+            foreach (Animal animal in _animals)
                 animal.ShowInfo();
 
-            _animals[0].MakeSound();
+            Console.WriteLine();
+            _animals.First().MakeSound();
+
+            Console.ReadKey();
         }
     }
 
@@ -79,7 +92,37 @@ namespace ConsoleAppB6P12
 
         public void Work()
         {
+            bool isWalk = true;
+            string commandExit = "Q";
 
+            while (isWalk)
+            {
+                Console.Clear();
+
+                for (int i = 1; i <= _aviaries.Count; i++)
+                    Console.WriteLine($"{i}. Идти к вальеру \"{_aviaries[i - 1].Name}\"");
+
+                Console.WriteLine($"{commandExit}. Покинуть зоопарк");
+                Console.Write("\nКуда пойдём? ");
+
+                string userInput = Console.ReadLine();
+
+                if (userInput.ToUpper() == commandExit)
+                {
+                    isWalk = false;
+                    continue;
+                }
+
+                if (int.TryParse(userInput, out int index) == false)
+                    continue;
+
+                index--;
+
+                if (index < 0 || index >= _aviaries.Count)
+                    continue;
+
+                _aviaries[index].ShowInfo();
+            }
         }
     }
 
@@ -91,12 +134,12 @@ namespace ConsoleAppB6P12
         public AnimalFactory()
         {
             _random = new Random();
-            _genders = new string[] { "м.", "ж." };
+            _genders = new string[] { "муж.", "жен." };
         }
 
         public Animal CreateElephant()
         {
-            int number = _random.Next(_genders.Length);
+            int number = GetNumber();
             string[] names =
                 {
                     "Слон",
@@ -122,7 +165,7 @@ namespace ConsoleAppB6P12
 
         public Animal CreateLion()
         {
-            int number = _random.Next(_genders.Length);
+            int number = GetNumber();
             string[] names =
                 {
                     "Лев",
@@ -139,7 +182,7 @@ namespace ConsoleAppB6P12
 
         public Animal CreateWolf()
         {
-            int number = _random.Next(_genders.Length);
+            int number = GetNumber();
             string[] names =
                 {
                     "Волк",
@@ -153,6 +196,8 @@ namespace ConsoleAppB6P12
 
             return new Animal(names[number], _genders[number], voices[number]);
         }
+
+        private int GetNumber() => _random.Next(_genders.Length);
     }
 
     public class AviaryFactory
@@ -208,7 +253,7 @@ namespace ConsoleAppB6P12
     public class ZooFactory
     {
         private readonly AviaryFactory _aviaryFactory;
-        
+
         public ZooFactory()
         {
             _aviaryFactory = new AviaryFactory();
