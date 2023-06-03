@@ -110,94 +110,97 @@ namespace ConsoleAppB6P12
                 if (userInput.ToUpper() == commandExit)
                 {
                     isWalk = false;
-                    continue;
                 }
+                else if (int.TryParse(userInput, out int index))
+                {
+                    index--;
 
-                if (int.TryParse(userInput, out int index) == false)
-                    continue;
-
-                index--;
-
-                if (index < 0 || index >= _aviaries.Count)
-                    continue;
-
-                _aviaries[index].ShowInfo();
+                    if (index >= 0 && index < _aviaries.Count)
+                        _aviaries[index].ShowInfo();
+                }
             }
         }
     }
 
     public class AnimalFactory
     {
-        private readonly Random _random;
-        private readonly string[] _genders;
-
-        public AnimalFactory()
-        {
-            _random = new Random();
-            _genders = new string[] { "муж.", "жен." };
-        }
+        private readonly Random _random = new Random();
 
         public Animal CreateElephant()
         {
-            int number = GetNumber();
-            string[] names =
-                {
+            Animal[] elephants =
+            {
+                new Animal
+                (
                     "Слон",
-                    "Слониха"
-                };
-            string[] voices =
-                {
-                    "Слон поднимает свой хобот и трубит приветствие.",
+                    "муж.",
+                    "Слон поднимает свой хобот и трубит приветствие."
+                ),
+                new Animal
+                (
+                    "Слониха",
+                    "жен.",
                     "Слониха стоит и хлопает своими большими ушами."
-                };
+                ),
+            };
 
-            return new Animal(names[number], _genders[number], voices[number]);
+            return elephants[_random.Next(elephants.Length)];
         }
 
         public Animal CreateMonkey()
         {
-            string name = "Обезьяна";
-            string gender = _genders[_random.Next(_genders.Length)];
-            string voice = "Обезьяна начинает метаться по клетке и кричать - \"Угу-уга-угу.\"";
+            string[] genders = { "муж.", "жен." };
+            string gender = genders[_random.Next(genders.Length)];
 
-            return new Animal(name, gender, voice);
+            return new Animal
+            (
+                "Обезьяна",
+                gender,
+                "Обезьяна начинает метаться по клетке и кричать - \"Угу-уга-угу.\""
+            );
         }
 
         public Animal CreateLion()
         {
-            int number = GetNumber();
-            string[] names =
-                {
+            Animal[] lions =
+{
+                new Animal
+                (
                     "Лев",
-                    "Львица"
-                };
-            string[] voices =
-                {
-                    "Лев гордо издаёт свой рык, показывая всем, кто здесь хозяин.",
+                    "муж.",
+                    "Лев гордо издаёт свой рык, показывая всем, кто здесь хозяин."
+                ),
+                new Animal
+                (
+                    "Львица",
+                    "жен.",
                     "Львица рыкнув на вас, лениво уходит в тень."
-                };
+                ),
+            };
 
-            return new Animal(names[number], _genders[number], voices[number]);
+            return lions[_random.Next(lions.Length)];
         }
 
         public Animal CreateWolf()
         {
-            int number = GetNumber();
-            string[] names =
-                {
+            Animal[] wolfs =
+{
+                new Animal
+                (
                     "Волк",
-                    "Волчица"
-                };
-            string[] voices =
-                {
-                    "Волк смотрит вам в глаза, а после издаёт протяжный вой.",
-                    "Волчица скалится на вас"
-                };
+                    "муж.",
+                    "Волк смотрит вам в глаза, а после издаёт протяжный вой."
+                ),
+                new Animal
+                (
+                    "Волчица",
+                    "жен.",
+                    "Волчица скалится на вас."
+                ),
+            };
 
-            return new Animal(names[number], _genders[number], voices[number]);
+            return wolfs[_random.Next(wolfs.Length)];
         }
-
-        private int GetNumber() => _random.Next(_genders.Length);
     }
 
     public class AviaryFactory
