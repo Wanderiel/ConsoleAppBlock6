@@ -159,7 +159,7 @@ namespace ConsoleAppB6P13
             Console.Clear();
             ShowInfo();
 
-            Console.WriteLine("\nУ нас новый клиент!");
+            Console.WriteLine("\nУ вас новый клиент!");
             _order.Print();
 
             Console.WriteLine($"\n[{CommandRepair}] - выполнить ремонт");
