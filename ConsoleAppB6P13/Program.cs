@@ -7,9 +7,9 @@ namespace ConsoleAppB6P13
     {
         static void Main(string[] args)
         {
-            VirtualSpace timer = new VirtualSpace();
+            VirtualSpace virtualSpace = new VirtualSpace();
 
-            timer.Tick();
+            virtualSpace.Move();
 
             Console.WriteLine("\nМы закончили :)");
             Console.ReadKey();
@@ -43,7 +43,7 @@ namespace ConsoleAppB6P13
         }
 
         public static Dictionary<string, int> Details { get; }
-        public static int Penalty = 20000;
+        public static int Penalty { get; } = 20000;
     }
 
     public class Detail
@@ -68,7 +68,7 @@ namespace ConsoleAppB6P13
         public int DetailCount => _queue.Count;
         public bool HasDetail => DetailCount > 0;
 
-        public Detail Get() => _queue.Dequeue();
+        public Detail Get() => HasDetail ? _queue.Dequeue() : null;
 
         public void Take(Detail detail) => _queue.Enqueue(detail);
     }
@@ -315,7 +315,7 @@ namespace ConsoleAppB6P13
             _carService = new CarService(_storageFactory.Create());
         }
 
-        public void Tick()
+        public void Move()
         {
             bool isWork = true;
 
