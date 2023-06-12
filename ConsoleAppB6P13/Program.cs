@@ -215,6 +215,18 @@ namespace ConsoleAppB6P13
         }
     }
 
+    public class CarServiceFactory
+    {
+        private readonly StorageFactory _storageFactory = new StorageFactory();
+
+        public CarService Create(Dictionary<string, int> parts)
+        {
+            Storage storage = _storageFactory.Create(parts);
+
+            return new CarService(storage);
+        }
+    }
+
     public class Order
     {
         private readonly double _jobMultiplier;
@@ -295,10 +307,9 @@ namespace ConsoleAppB6P13
 
     public class World
     {
-        private readonly CarFactory _carFactory = new CarFactory();
-        private readonly StorageFactory _storageFactory = new StorageFactory();
-        private readonly CarService _carService;
         private readonly Dictionary<string, int> _parts;
+        private readonly CarFactory _carFactory = new CarFactory();
+        private readonly CarServiceFactory _carServiceFactory = new CarServiceFactory();
 
         public World()
         {
@@ -313,20 +324,20 @@ namespace ConsoleAppB6P13
                 { "Тормоза", 5000 },
                 { "Аккумулятор", 500 },
             };
-            _carService = new CarService(_storageFactory.Create(new Dictionary<string, int>(_parts)));
         }
 
         public void Move()
         {
             bool isWork = true;
+            CarService carService = _carServiceFactory.Create(new Dictionary<string, int>(_parts));
 
             while (isWork)
             {
                 Car car = _carFactory.Create(new Dictionary<string, int>(_parts));
 
-                _carService.Work(car);
+                carService.Work(car);
 
-                if (_carService.IsBankrupt || _carService.IsClosed)
+                if (carService.IsBankrupt || carService.IsClosed)
                     isWork = false;
             }
         }
