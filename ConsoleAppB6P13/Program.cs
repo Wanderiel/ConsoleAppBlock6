@@ -164,7 +164,7 @@ namespace ConsoleAppB6P13
                     break;
 
                 case CommandNext:
-                    TakePenalty();
+                    TakeFine();
                     break;
 
                 case CommandExit:
@@ -196,7 +196,7 @@ namespace ConsoleAppB6P13
             Console.ReadKey();
         }
 
-        private void TakePenalty()
+        private void TakeFine()
         {
             _money -= _fine;
 
