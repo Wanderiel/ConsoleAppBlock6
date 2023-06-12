@@ -7,7 +7,7 @@ namespace ConsoleAppB6P13
     {
         static void Main(string[] args)
         {
-            VirtualSpace virtualSpace = new VirtualSpace();
+            World virtualSpace = new World();
 
             virtualSpace.Move();
 
@@ -72,7 +72,7 @@ namespace ConsoleAppB6P13
 
                 if (_containers[detail.Name].HasDetail == false)
                     return false;
-            }    
+            }
 
             foreach (Detail detail in brokenDetails)
                 details.Add(_containers[detail.Name].Give());
@@ -218,39 +218,40 @@ namespace ConsoleAppB6P13
     public class Order
     {
         private readonly double _jobMultiplier;
+        private readonly List<Detail> _replacementDetails;
 
         public Order(List<Detail> replacementDetails)
         {
             _jobMultiplier = 1.15;
-            ReplacementDetails = replacementDetails;
+            _replacementDetails = replacementDetails;
             Amount = CalculateAmount();
         }
 
-        public List<Detail> ReplacementDetails { get; }
+        public List<Detail> ReplacementDetails => new List<Detail>(_replacementDetails);
         public int Amount { get; }
 
         public void Print()
         {
             Console.WriteLine("Детали под замену:");
 
-            if (ReplacementDetails.Count == 0)
+            if (_replacementDetails.Count == 0)
             {
                 Console.WriteLine("Нет");
                 return;
             }
 
-            for (int i = 0; i < ReplacementDetails.Count; i++)
+            for (int i = 0; i < _replacementDetails.Count; i++)
             {
                 int index = i + 1;
                 Console.Write($"{index}. ");
-                Console.WriteLine($"{ReplacementDetails[i].Name}");
+                Console.WriteLine($"{_replacementDetails[i].Name}");
             }
 
             Console.WriteLine($"Стоимость ремонта: {Amount}");
         }
 
         private int CalculateAmount() =>
-            (int)(ReplacementDetails.Sum(detail => detail.Price) * _jobMultiplier);
+            (int)(_replacementDetails.Sum(detail => detail.Price) * _jobMultiplier);
     }
 
     public class Car
@@ -292,14 +293,14 @@ namespace ConsoleAppB6P13
         }
     }
 
-    public class VirtualSpace
+    public class World
     {
         private readonly CarFactory _carFactory = new CarFactory();
         private readonly StorageFactory _storageFactory = new StorageFactory();
         private readonly CarService _carService;
         private readonly Dictionary<string, int> _parts;
 
-        public VirtualSpace()
+        public World()
         {
             _parts = new Dictionary<string, int>()
             {
