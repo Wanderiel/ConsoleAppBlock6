@@ -25,27 +25,6 @@ namespace ConsoleAppB6P13
         public static bool NextBool() => _random.Next(2) == 1;
     }
 
-    public class Config
-    {
-        static Config()
-        {
-            Details = new Dictionary<string, int>()
-            {
-                { "Двигатель", 100000 },
-                { "Кузов", 80000 },
-                { "Рама", 30000 },
-                { "Колеса", 10000 },
-                { "Фары передние", 8000 },
-                { "Фары задние", 7000 },
-                { "Тормоза", 5000 },
-                { "Аккумулятор", 500 },
-            };
-        }
-
-        public static Dictionary<string, int> Details { get; }
-        public static int Penalty { get; } = 20000;
-    }
-
     public class Detail
     {
         public Detail(string name, int price)
@@ -68,7 +47,7 @@ namespace ConsoleAppB6P13
         public int DetailCount => _queue.Count;
         public bool HasDetail => DetailCount > 0;
 
-        public Detail Get() => HasDetail ? _queue.Dequeue() : null;
+        public Detail Give() => HasDetail ? _queue.Dequeue() : null;
 
         public void Take(Detail detail) => _queue.Enqueue(detail);
     }
@@ -87,11 +66,16 @@ namespace ConsoleAppB6P13
             details = new List<Detail>();
 
             foreach (Detail detail in brokenDetails)
-                if (_containers[detail.Name].HasDetail == false)
+            {
+                if (_containers.ContainsKey(detail.Name) == false)
                     return false;
 
+                if (_containers[detail.Name].HasDetail == false)
+                    return false;
+            }    
+
             foreach (Detail detail in brokenDetails)
-                details.Add(_containers[detail.Name].Get());
+                details.Add(_containers[detail.Name].Give());
 
             return true;
         }
@@ -112,18 +96,18 @@ namespace ConsoleAppB6P13
 
     public class StorageFactory
     {
-        public Storage Create()
+        public Storage Create(Dictionary<string, int> parts)
         {
             Dictionary<string, Container> containers = new Dictionary<string, Container>();
-            int min = 5;
-            int max = 16;
+            int minCount = 5;
+            int maxCount = 16;
 
-            foreach (var config in Config.Details)
+            foreach (var config in parts)
             {
                 Container container = new Container();
-                int count = Random.GetNumber(min, max);
+                int detailCount = Random.GetNumber(minCount, maxCount);
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < detailCount; i++)
                     container.Take(new Detail(config.Key, config.Value));
 
                 containers[config.Key] = container;
@@ -136,12 +120,16 @@ namespace ConsoleAppB6P13
     public class CarService
     {
         private int _money;
+        private readonly int _fine;
+        private readonly int _penalty;
         private readonly Storage _storage;
         private Order _order;
 
         public CarService(Storage storage)
         {
             _money = 10000;
+            _fine = 10000;
+            _penalty = 20000;
             _storage = storage;
         }
 
@@ -193,26 +181,27 @@ namespace ConsoleAppB6P13
                 _money += _order.Amount;
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("Хорошая работа! Заработано ");
+                Console.WriteLine($"Хорошая работа! Заработано {_order.Amount}");
             }
             else
             {
-                _money -= _order.Amount;
+                _money -= _penalty;
 
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"У вас нет нужных деталей. Выплачена неустойка ");
+                Console.WriteLine($"У вас нет нужных деталей, работа не выполнена.");
+                Console.WriteLine($"Клиенту выплачена неустойка {_penalty}");
             }
 
-            Console.WriteLine(_order.Amount);
             Console.ResetColor();
             Console.ReadKey();
         }
 
         private void TakePenalty()
         {
-            _money -= Config.Penalty;
+            _money -= _fine;
+
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"Клиент не обслужен. Выплачен штраф: {Config.Penalty}");
+            Console.WriteLine($"Клиент не обслужен. Выплачен штраф: {_fine}");
             Console.ResetColor();
             Console.ReadKey();
         }
@@ -285,11 +274,11 @@ namespace ConsoleAppB6P13
 
     public class CarFactory
     {
-        public Car Create()
+        public Car Create(Dictionary<string, int> parts)
         {
             List<Detail> details = new List<Detail>();
 
-            foreach (var config in Config.Details)
+            foreach (var config in parts)
             {
                 Detail detail = new Detail(config.Key, config.Value);
 
@@ -308,11 +297,22 @@ namespace ConsoleAppB6P13
         private readonly CarFactory _carFactory = new CarFactory();
         private readonly StorageFactory _storageFactory = new StorageFactory();
         private readonly CarService _carService;
-        private int _time;
+        private readonly Dictionary<string, int> _parts;
 
         public VirtualSpace()
         {
-            _carService = new CarService(_storageFactory.Create());
+            _parts = new Dictionary<string, int>()
+            {
+                { "Двигатель", 100000 },
+                { "Кузов", 80000 },
+                { "Рама", 30000 },
+                { "Колеса", 10000 },
+                { "Фары передние", 8000 },
+                { "Фары задние", 7000 },
+                { "Тормоза", 5000 },
+                { "Аккумулятор", 500 },
+            };
+            _carService = new CarService(_storageFactory.Create(new Dictionary<string, int>(_parts)));
         }
 
         public void Move()
@@ -321,11 +321,9 @@ namespace ConsoleAppB6P13
 
             while (isWork)
             {
-                Car car = _carFactory.Create();
+                Car car = _carFactory.Create(new Dictionary<string, int>(_parts));
 
                 _carService.Work(car);
-
-                Thread.Sleep(_time);
 
                 if (_carService.IsBankrupt || _carService.IsClosed)
                     isWork = false;
