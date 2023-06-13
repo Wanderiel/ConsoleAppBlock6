@@ -7,9 +7,9 @@ namespace ConsoleAppB6P13
     {
         static void Main(string[] args)
         {
-            World virtualSpace = new World();
+            World world = new World();
 
-            virtualSpace.Move();
+            world.Run();
 
             Console.WriteLine("\nМы закончили :)");
             Console.ReadKey();
@@ -326,7 +326,7 @@ namespace ConsoleAppB6P13
             };
         }
 
-        public void Move()
+        public void Run()
         {
             bool isWork = true;
             CarService carService = _carServiceFactory.Create(new Dictionary<string, int>(_parts));
